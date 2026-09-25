@@ -436,6 +436,7 @@
         const CELL_WIDTH = 58;  // Cell size + gap
         const CELL_HEIGHT = 78; // Cell size + gap
         const BUFFER_SIZE = 3;  // Render buffer offscreen
+        let newlyAddedCellIdx = -1; // Track active input cell index for animation
 
         window.onload = function() {
             initKeyboard();
@@ -445,7 +446,6 @@
             const viewport = document.getElementById('boardViewport');
             let isScrolling = false;
 
-            // Throttle virtualization recalculations on grid scroll
             viewport.addEventListener('scroll', () => {
                 if (!isScrolling) {
                     window.requestAnimationFrame(() => {
@@ -673,6 +673,9 @@
                 }
             }
             container.appendChild(fragment);
+            
+            // Clear pop trigger tracker after single render cycle
+            newlyAddedCellIdx = -1;
         }
 
         function createVirtualCell(r, c) {
@@ -698,24 +701,31 @@
                 if (evalResult === 'GREEN') backBg = 'bg-gradient-to-b from-emerald-500 to-emerald-700 border-emerald-300 shadow-lg';
                 if (evalResult === 'YELLOW') backBg = 'bg-gradient-to-b from-amber-500 to-amber-700 border-amber-300 shadow-lg';
 
-                backContent = `
-                    <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
-                        ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
-                        <span class="auto-fit-text font-black text-center w-full shrink-0 drop-shadow">${eevee.name}</span>
-                    </div>
-                `;
+                if (eevee) {
+                    backContent = `
+                        <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
+                            ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
+                            <span class="auto-fit-text font-black text-center w-full shrink-0 drop-shadow">${eevee.name}</span>
+                        </div>
+                    `;
+                }
                 flippedClass = 'flipped';
             } else if (isCurrentRow && c < currentGuess.length) {
                 const eevee = EEVEELUTIONS.find(e => e.id === currentGuess[c]);
-                frontContent = `
-                    <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
-                        ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
-                        <span class="auto-fit-text font-black text-center w-full shrink-0" style="color: ${eevee.color}">${eevee.name}</span>
-                    </div>
-                `;
+                if (eevee) {
+                    frontContent = `
+                        <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
+                            ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
+                            <span class="auto-fit-text font-black text-center w-full shrink-0" style="color: ${eevee.color}">${eevee.name}</span>
+                        </div>
+                    `;
+                }
             }
 
-            const frontBorder = (isCurrentRow && c < currentGuess.length) ? 'border-amber-400 bg-gray-800 tile-pop' : 'border-gray-800 bg-gray-900/90';
+            const shouldPop = (isCurrentRow && c === newlyAddedCellIdx);
+            const frontBorder = (isCurrentRow && c < currentGuess.length) 
+                ? `border-amber-400 bg-gray-800 ${shouldPop ? 'tile-pop' : ''}` 
+                : 'border-gray-800 bg-gray-900/90';
 
             cellEl.innerHTML = `
                 <div class="flip-inner w-full h-full relative ${flippedClass}">
@@ -761,6 +771,7 @@
                 playPokemonCry(eevee.sound);
             }
 
+            newlyAddedCellIdx = currentGuess.length;
             currentGuess.push(eeveeId);
             updateCurrentRowUI();
         }
@@ -769,6 +780,7 @@
             if (isGameOver || currentGuess.length === 0) return;
             playSound('click');
             currentGuess.pop();
+            newlyAddedCellIdx = -1;
             updateCurrentRowUI();
         }
 

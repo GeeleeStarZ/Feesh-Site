@@ -3,10 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
+    <title>Geelee's Vappy Aquarium</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        /* Responsive Grid Layout */
+        .gallery {
+            display: grid;
+            /* Creates columns that automatically fit the screen size */
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            max-width: 1000px;
+            margin: 2rem auto 0 auto;
+        }
+
+        /* Individual Image Cards */
+        .gallery img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover; /* Keeps image proportions clean without stretching */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Subtle Zoom Effect on Hover */
+        .gallery img:hover {
+            transform: scale(1.04);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello, World!</h1>
-    <p>Vappy is the best!</p>
+
+    <h1>Vappy Gallery</h1>
+    <p>Check out some of my favorite images!</p>
+
+    <!-- The Gallery Grid -->
+    <div class="gallery">
+        <img src="feesh_gallery/feesh1.jpg" alt="Description 1">
+        <img src="feesh_gallery/feesh2.png" alt="Description 2">
+        <img src="feesh_gallery/feesh3.png" alt="Description 3">
+    </div>
+
 </body>
 </html>

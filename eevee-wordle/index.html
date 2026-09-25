@@ -1,9 +1,9 @@
- <!-- CODE NOT WRITTEN BY ME, THIS IS PURELY FOR EDUCATIONAL PURPOSES -->
+<!-- CODE NOT WRITTEN BY ME, THIS IS PURELY FOR EDUCATIONAL PURPOSES -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Eevee-dle: The Eeveelution Sequence Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -33,8 +33,9 @@
         body {
             background: linear-gradient(135deg, #1a1c29 0%, #0d0e15 100%);
             color: #f3f4f6;
-            min-height: 100vh;
+            min-height: 100dvh;
             touch-action: manipulation;
+            overflow-x: hidden;
         }
 
         .tile-pop {
@@ -52,7 +53,7 @@
         }
 
         .flip-inner {
-            transition: transform 0.6s;
+            transition: transform 0.4s ease-out;
             transform-style: preserve-3d;
         }
 
@@ -70,19 +71,26 @@
         }
 
         .shake {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
         }
 
         @keyframes shake {
             10%, 90% { transform: translate3d(-1px, 0, 0); }
             20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+            40%, 60% { transform: translate3d(3px, 0, 0); }
+        }
+
+        /* All 9 Eeveelution Colors Gradient Title */
+        .eeveelution-gradient-text {
+            background-image: linear-gradient(to right, #a4734f, #2980b9, #f1c40f, #e67e22, #8e44ad, #2c3e50, #27ae60, #3498db, #e84393);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.05);
@@ -93,157 +101,161 @@
         }
     </style>
 </head>
-<body class="flex flex-col items-center min-h-screen justify-between p-2 sm:p-4 select-none">
+<body class="flex flex-col items-center justify-between min-h-[100dvh] p-1.5 sm:p-4 select-none">
 
-    <header class="w-full max-w-4xl flex flex-col md:flex-row items-center justify-between py-2 px-4 border-b border-gray-800 gap-2">
-        <div class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-700 via-amber-500 to-amber-300 flex items-center justify-center shadow-lg font-extrabold text-white text-lg">
-                Ee
-            </div>
-            <div>
-                <h1 class="text-xl sm:text-2xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-pink-400 to-purple-400">
-                    EEVEE-DLE
-                </h1>
-            </div>
+    <!-- Header -->
+    <header class="w-full max-w-4xl flex items-center justify-between py-1 px-2 border-b border-gray-800 gap-2">
+        <div class="flex items-center">
+            <h1 class="text-xl sm:text-3xl font-black tracking-wider eeveelution-gradient-text drop-shadow">
+                EEVEE-DLE
+            </h1>
         </div>
 
         <!-- Mode Toggle & Action Buttons -->
-        <div class="flex items-center gap-2 flex-wrap justify-center">
-            <!-- Mode Switcher Toggle -->
-            <div class="bg-gray-900 p-1 rounded-xl border border-gray-800 flex items-center text-xs font-bold">
-                <button id="btnDailyMode" onclick="switchGameMode('daily')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-amber-500 text-gray-950 shadow-md">
+        <div class="flex items-center gap-1.5 flex-wrap justify-end">
+            <div class="bg-gray-900 p-0.5 sm:p-1 rounded-lg border border-gray-800 flex items-center text-[11px] sm:text-xs font-bold">
+                <button id="btnDailyMode" onclick="switchGameMode('daily')" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md">
                     <span>📅</span>
-                    <span>Daily</span>
+                    <span class="hidden xs:inline">Daily</span>
                 </button>
-                <button id="btnFreeMode" onclick="switchGameMode('free')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-gray-400 hover:text-white">
+                <button id="btnFreeMode" onclick="switchGameMode('free')" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 text-gray-400 hover:text-white">
                     <span>♾️</span>
-                    <span>Free Play</span>
+                    <span class="hidden xs:inline">Free</span>
                 </button>
             </div>
 
-            <button onclick="openModal('howToPlayModal')" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition text-xs sm:text-sm font-semibold flex items-center gap-1 border border-gray-700">
-                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <button onclick="openModal('howToPlayModal')" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition text-[11px] sm:text-sm font-semibold flex items-center gap-1 border border-gray-700">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span class="hidden sm:inline">Rules</span>
             </button>
-            <button id="btnNewGame" onclick="resetFreeGame()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition text-xs sm:text-sm font-semibold flex items-center gap-1 shadow-md">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                <span>New Game</span>
+            <button id="btnNewGame" onclick="resetFreeGame()" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition text-[11px] sm:text-sm font-semibold flex items-center gap-1 shadow-md hidden">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <span class="hidden xs:inline">New</span>
             </button>
         </div>
     </header>
 
-    <main class="w-full max-w-5xl flex-1 flex flex-col items-center justify-center my-2 gap-1 overflow-x-auto">
-        <!-- Status / Timer Banner -->
-        <div class="flex items-center justify-between w-full max-w-md px-2 text-xs font-semibold">
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="fixed top-14 left-1/2 -translate-x-1/2 bg-amber-500 text-gray-950 px-4 py-2 rounded-xl font-bold text-xs sm:text-sm shadow-2xl z-50 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-2">
+        Copied to clipboard! 📋
+    </div>
+
+    <!-- Main Game Section -->
+    <main class="w-full max-w-5xl flex-1 flex flex-col items-center justify-center my-1 gap-1">
+        <!-- Status / Indicator Bar -->
+        <div class="flex items-center justify-between w-full max-w-md px-2 text-[11px] sm:text-xs font-semibold">
             <span id="modeIndicator" class="text-amber-400 font-bold flex items-center gap-1">
-                📅 Daily Challenge
+                📅 Daily
             </span>
-            <span id="attemptIndicator" class="text-gray-400 uppercase tracking-widest">
-                Attempt 1 of 7
+            <span id="attemptIndicator" class="text-gray-400 uppercase tracking-wider">
+                Attempt 1/7
             </span>
             <span id="countdownContainer" class="text-gray-400 hidden flex items-center gap-1">
                 ⏳ <span id="resetTimer" class="font-mono font-bold text-amber-300">--:--:--</span>
             </span>
         </div>
 
-        <!-- 7 Rows x 10 Columns Grid Container -->
-        <div id="gridContainer" class="flex flex-col gap-1.5 p-2 bg-gray-900/60 rounded-xl border border-gray-800 shadow-2xl backdrop-blur-md">
-            <!-- Grid rows generated programmatically in JS -->
+        <!-- Grid Container -->
+        <div id="gridContainer" class="flex flex-col gap-1 sm:gap-1.5 p-1.5 sm:p-2 bg-gray-900/60 rounded-xl border border-gray-800 shadow-2xl backdrop-blur-md max-w-full">
+            <!-- Grid rows generated programmatically -->
         </div>
     </main>
 
-    <footer class="w-full max-w-4xl flex flex-col gap-2 p-2 sm:p-3 bg-gray-900/90 rounded-2xl border border-gray-800 shadow-xl backdrop-blur-md mb-2">
-        <!-- Eeveelution Selector Buttons -->
-        <div id="selectorButtons" class="grid grid-cols-3 sm:grid-cols-9 gap-1.5 sm:gap-2">
-            <!-- Buttons dynamically populated -->
+    <!-- Controls & Keypad Footer -->
+    <footer class="w-full max-w-4xl flex flex-col gap-1.5 p-1.5 sm:p-3 bg-gray-900/90 rounded-xl sm:rounded-2xl border border-gray-800 shadow-xl backdrop-blur-md mb-0.5">
+        <!-- Eeveelution Selector Buttons (Fits into 1 clean row on mobile) -->
+        <div id="selectorButtons" class="grid grid-cols-9 gap-0.5 sm:gap-2">
+            <!-- Dynamically populated -->
         </div>
 
         <!-- Row Controls (Backspace, Submit) -->
-        <div class="flex items-center justify-between gap-2 mt-1">
-            <button onclick="handleBackspace()" class="flex-1 py-2.5 sm:py-3 rounded-xl bg-gray-800 hover:bg-gray-700 active:scale-95 transition font-bold text-gray-200 text-xs sm:text-sm flex items-center justify-center gap-2 border border-gray-700">
-                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V6a2 2 0 00-2-2H10.828a2 2 0 00-1.414.586L3 12z"></path></svg>
-                <span>DELETE</span>
+        <div class="flex items-center justify-between gap-1.5">
+            <button onclick="handleBackspace()" class="flex-1 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-gray-800 hover:bg-gray-700 active:scale-95 transition font-bold text-gray-200 text-xs sm:text-sm flex items-center justify-center gap-1 border border-gray-700">
+                <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V6a2 2 0 00-2-2H10.828a2 2 0 00-1.414.586L3 12z"></path></svg>
+                <span>DEL</span>
             </button>
-            <button id="submitBtn" onclick="handleSubmit()" class="flex-[2] py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 transition font-black text-white text-xs sm:text-sm tracking-wider uppercase shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                <span>SUBMIT SEQUENCE (10)</span>
+            <button id="submitBtn" onclick="handleSubmit()" class="flex-[2.5] py-2 sm:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 transition font-black text-white text-xs sm:text-sm tracking-wider uppercase shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                <span>SUBMIT (10)</span>
             </button>
         </div>
     </footer>
 
     <!-- How To Play Modal -->
-    <div id="howToPlayModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('howToPlayModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white p-1">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <div id="howToPlayModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-lg w-full p-5 shadow-2xl relative max-h-[90vh] overflow-y-auto text-xs sm:text-sm">
+            <button onclick="closeModal('howToPlayModal')" class="absolute top-3 right-3 text-gray-400 hover:text-white p-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <h2 class="text-2xl font-black text-amber-400 mb-3 flex items-center gap-2">
+            <h2 class="text-xl sm:text-2xl font-black text-amber-400 mb-2 flex items-center gap-2">
                 <span>🎮 How to Play</span>
             </h2>
-            <p class="text-sm text-gray-300 mb-4 leading-relaxed">
-                Guess the secret 10-length sequence of Eeveelutions in <strong>7 attempts</strong>! You can use any of the 9 available Eeveelutions, and duplicates are allowed.
+            <p class="text-gray-300 mb-3 leading-relaxed">
+                Guess the secret 10-length sequence of Eeveelutions in <strong>7 attempts</strong>!
             </p>
             
-            <div class="space-y-3 text-xs sm:text-sm mb-4">
-                <div class="p-3 bg-gray-800/80 rounded-xl border border-emerald-500/30 flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white text-xs">🟩</div>
+            <div class="space-y-2 mb-4">
+                <div class="p-2.5 bg-gray-800/80 rounded-xl border border-emerald-500/30 flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white text-xs shrink-0">🟩</div>
                     <div>
                         <span class="font-bold text-emerald-400">Green (Correct):</span>
-                        <p class="text-gray-300">The Eeveelution is in the sequence and in the <strong>exact right position</strong>.</p>
+                        <p class="text-gray-300 text-[11px] sm:text-xs">Correct Eeveelution in the exact right position.</p>
                     </div>
                 </div>
 
-                <div class="p-3 bg-gray-800/80 rounded-xl border border-amber-500/30 flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center font-bold text-white text-xs">🟨</div>
+                <div class="p-2.5 bg-gray-800/80 rounded-xl border border-amber-500/30 flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center font-bold text-white text-xs shrink-0">🟨</div>
                     <div>
                         <span class="font-bold text-amber-400">Yellow (Present):</span>
-                        <p class="text-gray-300">The Eeveelution exists in the sequence, but is in a <strong>different position</strong>.</p>
+                        <p class="text-gray-300 text-[11px] sm:text-xs">In the sequence, but in a different position.</p>
                     </div>
                 </div>
 
-                <div class="p-3 bg-gray-800/80 rounded-xl border border-gray-600/30 flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center font-bold text-white text-xs">⬛</div>
+                <div class="p-2.5 bg-gray-800/80 rounded-xl border border-gray-600/30 flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-gray-700 flex items-center justify-center font-bold text-white text-xs shrink-0">⬛</div>
                     <div>
                         <span class="font-bold text-gray-400">Gray (Absent):</span>
-                        <p class="text-gray-300">The Eeveelution does not appear in the sequence (or extra duplicate instances).</p>
+                        <p class="text-gray-300 text-[11px] sm:text-xs">Does not appear in the remaining sequence.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="p-3 bg-amber-950/40 rounded-xl border border-amber-800/50 text-xs text-amber-200 mb-4">
-                📅 <strong>Daily Mode:</strong> Same puzzle for everyone each day! Automatically saved to your device.
-            </div>
-
-            <button onclick="closeModal('howToPlayModal')" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 font-bold text-gray-900 transition text-sm">
+            <button onclick="closeModal('howToPlayModal')" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 font-bold text-gray-900 transition text-xs sm:text-sm">
                 Got It! Let's Play
             </button>
         </div>
     </div>
 
     <!-- Game End Modal (Win / Defeat) -->
-    <div id="gameEndModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full p-6 text-center shadow-2xl relative">
-            <div id="endEmoji" class="text-5xl mb-2">🎉</div>
-            <h2 id="endTitle" class="text-2xl font-black text-white mb-1">VICTORY!</h2>
-            <p id="endSubtitle" class="text-sm text-gray-400 mb-4">You guessed the secret sequence!</p>
+    <div id="gameEndModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full p-5 text-center shadow-2xl relative">
+            <div id="endEmoji" class="text-4xl mb-1">🎉</div>
+            <h2 id="endTitle" class="text-xl sm:text-2xl font-black text-white mb-1">VICTORY!</h2>
+            <p id="endSubtitle" class="text-xs sm:text-sm text-gray-400 mb-3">You guessed the secret sequence!</p>
 
-            <div class="my-4">
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">Secret Sequence Was:</span>
-                <div id="solutionDisplay" class="flex flex-wrap justify-center gap-1.5 p-3 bg-gray-950 rounded-xl border border-gray-800">
+            <div class="my-3">
+                <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Secret Sequence Was:</span>
+                <div id="solutionDisplay" class="flex flex-wrap justify-center gap-1 p-2 bg-gray-950 rounded-xl border border-gray-800">
                 </div>
             </div>
 
-            <div id="statsSummary" class="text-xs text-gray-400 mb-4 bg-gray-800/40 p-2.5 rounded-lg flex justify-around">
+            <div id="statsSummary" class="text-xs text-gray-400 mb-3 bg-gray-800/40 p-2 rounded-lg flex justify-around">
                 <div>Attempts: <span id="endAttempts" class="text-white font-bold">4/7</span></div>
                 <div>Mode: <span id="endMode" class="text-amber-400 font-bold">Daily Challenge</span></div>
             </div>
 
-            <div id="modalResetTimerContainer" class="mb-4 text-xs text-gray-400 hidden">
+            <div id="modalResetTimerContainer" class="mb-3 text-xs text-gray-400 hidden">
                 Next Daily Puzzle in: <span id="modalResetTimer" class="font-mono text-amber-300 font-bold">--:--:--</span>
             </div>
 
-            <div class="flex gap-2">
-                <button id="modalActionBtn" onclick="handleModalAction()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-900 font-extrabold transition shadow-lg text-sm uppercase tracking-wider">
+            <div class="flex flex-col gap-2">
+                <!-- Share Button -->
+                <button onclick="shareResult()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black transition shadow-lg text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                    <span>Share Result</span>
+                </button>
+
+                <button id="modalActionBtn" onclick="handleModalAction()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-900 font-extrabold transition shadow-lg text-xs sm:text-sm uppercase tracking-wider">
                     Play Unlimited Mode
                 </button>
             </div>
@@ -252,21 +264,69 @@
 
     <script>
         const EEVEELUTIONS = [
-            { id: 'eevee', name: 'Eevee', type: 'Normal', color: '#a4734f', bg: 'bg-amber-800', border: 'border-amber-600', icon: '🤎', key: '1' },
-            { id: 'vaporeon', name: 'Vaporeon', type: 'Water', color: '#2980b9', bg: 'bg-blue-600', border: 'border-blue-400', icon: '💧', key: '2' },
-            { id: 'jolteon', name: 'Jolteon', type: 'Electric', color: '#f1c40f', bg: 'bg-yellow-500', border: 'border-yellow-300', icon: '⚡', key: '3' },
-            { id: 'flareon', name: 'Flareon', type: 'Fire', color: '#e67e22', bg: 'bg-orange-600', border: 'border-orange-400', icon: '🔥', key: '4' },
-            { id: 'espeon', name: 'Espeon', type: 'Psychic', color: '#8e44ad', bg: 'bg-purple-600', border: 'border-purple-400', icon: '🔮', key: '5' },
-            { id: 'umbreon', name: 'Umbreon', type: 'Dark', color: '#2c3e50', bg: 'bg-slate-700', border: 'border-slate-500', icon: '🌙', key: '6' },
-            { id: 'leafeon', name: 'Leafeon', type: 'Grass', color: '#27ae60', bg: 'bg-emerald-600', border: 'border-emerald-400', icon: '🍃', key: '7' },
-            { id: 'glaceon', name: 'Glaceon', type: 'Ice', color: '#3498db', bg: 'bg-sky-500', border: 'border-sky-300', icon: '❄️', key: '8' },
-            { id: 'sylveon', name: 'Sylveon', type: 'Fairy', color: '#e84393', bg: 'bg-pink-500', border: 'border-pink-300', icon: '🎀', key: '9' }
+            { id: 'eevee', name: 'Eevee', type: 'Normal', color: '#a4734f', bg: 'bg-amber-800', border: 'border-amber-600', icon: '🤎', key: '1', image: 'images/eevee.webp', sound: 'sounds/eevee.ogg' },
+            { id: 'vaporeon', name: 'Vaporeon', type: 'Water', color: '#2980b9', bg: 'bg-blue-600', border: 'border-blue-400', icon: '💧', key: '2', image: 'images/vaporeon.webp', sound: 'sounds/vaporeon.ogg' },
+            { id: 'jolteon', name: 'Jolteon', type: 'Electric', color: '#f1c40f', bg: 'bg-yellow-500', border: 'border-yellow-300', icon: '⚡', key: '3', image: 'images/jolteon.webp', sound: 'sounds/jolteon.ogg' },
+            { id: 'flareon', name: 'Flareon', type: 'Fire', color: '#e67e22', bg: 'bg-orange-600', border: 'border-orange-400', icon: '🔥', key: '4', image: 'images/flareon.webp', sound: 'sounds/flareon.ogg' },
+            { id: 'espeon', name: 'Espeon', type: 'Psychic', color: '#8e44ad', bg: 'bg-purple-600', border: 'border-purple-400', icon: '🔮', key: '5', image: 'images/espeon.webp', sound: 'sounds/espeon.ogg' },
+            { id: 'umbreon', name: 'Umbreon', type: 'Dark', color: '#2c3e50', bg: 'bg-slate-700', border: 'border-slate-500', icon: '🌙', key: '6', image: 'images/umbreon.webp', sound: 'sounds/umbreon.ogg' },
+            { id: 'leafeon', name: 'Leafeon', type: 'Grass', color: '#27ae60', bg: 'bg-emerald-600', border: 'border-emerald-400', icon: '🍃', key: '7', image: 'images/leafeon.webp', sound: 'sounds/leafeon.ogg' },
+            { id: 'glaceon', name: 'Glaceon', type: 'Ice', color: '#3498db', bg: 'bg-sky-500', border: 'border-sky-300', icon: '❄️', key: '8', image: 'images/glaceon.webp', sound: 'sounds/glaceon.ogg' },
+            { id: 'sylveon', name: 'Sylveon', type: 'Fairy', color: '#e84393', bg: 'bg-pink-500', border: 'border-pink-300', icon: '🎀', key: '9', image: 'images/sylveon.webp', sound: 'sounds/sylveon.ogg' }
         ];
+
+        // Global pre-initialized audio map
+        const SOUNDS = {
+            click: new Audio('sounds/click.mp3'),
+            flip: new Audio('sounds/card-flip.mp3'),
+            failed: new Audio('sounds/failed.mp3'),
+            success: new Audio('sounds/success.mp3')
+        };
+
+        // Unlock audio context on first user interaction
+        let audioUnlocked = false;
+        function unlockAudioContext() {
+            if (audioUnlocked) return;
+            Object.values(SOUNDS).forEach(audio => {
+                audio.load();
+            });
+            audioUnlocked = true;
+        }
+        document.addEventListener('touchstart', unlockAudioContext, { once: true });
+        document.addEventListener('click', unlockAudioContext, { once: true });
+
+        function playSound(key) {
+            try {
+                const audio = SOUNDS[key] || new Audio(`sounds/${key}.mp3`);
+                audio.currentTime = 0;
+                const promise = audio.play();
+                if (promise !== undefined) {
+                    promise.catch(err => console.log(`Audio error (${key}):`, err));
+                }
+            } catch(e) {
+                console.log('Audio playback error:', e);
+            }
+        }
+
+        function playPokemonCry(soundPath) {
+            if (soundPath) {
+                const cry = new Audio(soundPath);
+                cry.volume = 0.6;
+                cry.play().catch(() => {});
+            }
+        }
+
+        function getEeveeImageHTML(eevee, imgClasses = "w-4 h-4 sm:w-7 sm:h-7") {
+            if (eevee && eevee.image) {
+                return `<img src="${eevee.image}" alt="${eevee.name}" class="${imgClasses} object-contain" onerror="this.outerHTML='<span class=\\'text-xs sm:text-base\\'>${eevee.icon}</span>'">`;
+            }
+            return `<span class="text-xs sm:text-base">${eevee ? eevee.icon : ''}</span>`;
+        }
 
         const MAX_ATTEMPTS = 7;
         const SEQUENCE_LENGTH = 10;
 
-        let gameMode = 'daily'; // 'daily' or 'free'
+        let gameMode = 'daily';
         let secretSequence = [];
         let currentAttempt = 0;
         let currentGuess = [];
@@ -295,7 +355,6 @@
             });
         };
 
-        // Get local YYYY-MM-DD date string
         function getLocalDateString() {
             const d = new Date();
             const year = d.getFullYear();
@@ -304,7 +363,6 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Seeded Pseudo-Random Number Generator (Mulberry32)
         function mulberry32(a) {
             return function() {
                 var t = a += 0x6D2B79F5;
@@ -314,7 +372,6 @@
             }
         }
 
-        // Generate Daily Sequence using Date String as Seed
         function getDailySequence(dateStr) {
             let hash = 0;
             for (let i = 0; i < dateStr.length; i++) {
@@ -340,15 +397,15 @@
             const btnNewGame = document.getElementById('btnNewGame');
 
             if (mode === 'daily') {
-                btnDaily.className = "px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-amber-500 text-gray-950 shadow-md";
-                btnFree.className = "px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-gray-400 hover:text-white";
+                btnDaily.className = "px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md";
+                btnFree.className = "px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 text-gray-400 hover:text-white";
                 modeInd.innerHTML = '📅 Daily Challenge';
                 countdownContainer.classList.remove('hidden');
                 btnNewGame.classList.add('hidden');
                 loadDailyGame();
             } else {
-                btnFree.className = "px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-amber-500 text-gray-950 shadow-md";
-                btnDaily.className = "px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-gray-400 hover:text-white";
+                btnFree.className = "px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md";
+                btnDaily.className = "px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 text-gray-400 hover:text-white";
                 modeInd.innerHTML = '♾️ Free Play Mode';
                 countdownContainer.classList.add('hidden');
                 btnNewGame.classList.remove('hidden');
@@ -360,7 +417,6 @@
             const todayStr = getLocalDateString();
             secretSequence = getDailySequence(todayStr);
 
-            // Load saved state from LocalStorage
             const savedData = localStorage.getItem(`eeveedle_daily_${todayStr}`);
             initBoard();
             currentAttempt = 0;
@@ -373,7 +429,6 @@
                     const parsed = JSON.parse(savedData);
                     submittedGuesses = parsed.guesses || [];
                     
-                    // Replay saved guesses onto UI
                     submittedGuesses.forEach((guess, attemptIndex) => {
                         currentAttempt = attemptIndex;
                         currentGuess = guess;
@@ -393,7 +448,7 @@
                 }
             }
 
-            document.getElementById('attemptIndicator').textContent = `Attempt ${Math.min(currentAttempt + 1, MAX_ATTEMPTS)} of ${MAX_ATTEMPTS}`;
+            document.getElementById('attemptIndicator').textContent = `Attempt ${Math.min(currentAttempt + 1, MAX_ATTEMPTS)}/${MAX_ATTEMPTS}`;
         }
 
         function resetFreeGame() {
@@ -408,7 +463,7 @@
             submittedGuesses = [];
             isGameOver = false;
 
-            document.getElementById('attemptIndicator').textContent = `Attempt 1 of ${MAX_ATTEMPTS}`;
+            document.getElementById('attemptIndicator').textContent = `Attempt 1/${MAX_ATTEMPTS}`;
             initBoard();
         }
 
@@ -430,18 +485,18 @@
             for (let r = 0; r < MAX_ATTEMPTS; r++) {
                 const rowEl = document.createElement('div');
                 rowEl.id = `row-${r}`;
-                rowEl.className = 'grid grid-cols-10 gap-1 sm:gap-1.5 justify-center';
+                rowEl.className = 'grid grid-cols-10 gap-0.5 sm:gap-1.5 justify-center';
 
                 for (let c = 0; c < SEQUENCE_LENGTH; c++) {
                     const cellEl = document.createElement('div');
                     cellEl.id = `cell-${r}-${c}`;
-                    cellEl.className = 'flip-card w-7 h-9 sm:w-11 sm:h-14 md:w-12 md:h-16';
+                    cellEl.className = 'flip-card w-[8.8vw] max-w-[42px] h-[11vw] max-h-[56px] min-w-[26px] min-h-[34px]';
 
                     cellEl.innerHTML = `
                         <div class="flip-inner w-full h-full relative">
-                            <div class="flip-front absolute inset-0 rounded-lg sm:rounded-xl border-2 border-gray-800 bg-gray-900/90 flex flex-col items-center justify-center text-xs font-bold text-gray-300">
+                            <div class="flip-front absolute inset-0 rounded-md sm:rounded-xl border border-gray-800 bg-gray-900/90 flex flex-col items-center justify-center text-[10px] font-bold text-gray-300">
                             </div>
-                            <div class="flip-back absolute inset-0 rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-xs font-bold text-white shadow-inner">
+                            <div class="flip-back absolute inset-0 rounded-md sm:rounded-xl flex flex-col items-center justify-center text-[10px] font-bold text-white shadow-inner">
                             </div>
                         </div>
                     `;
@@ -458,13 +513,15 @@
             EEVEELUTIONS.forEach(e => {
                 const btn = document.createElement('button');
                 btn.onclick = () => addEevee(e.id);
-                btn.className = `p-1.5 sm:p-2 rounded-xl bg-gray-800/80 border border-gray-700 hover:border-gray-500 active:scale-95 transition flex flex-col items-center justify-center gap-0.5 group`;
-                btn.title = `${e.name} (Press key: ${e.key})`;
+                btn.className = `p-1 sm:p-2 rounded-lg bg-gray-800/80 border border-gray-700 hover:border-gray-500 active:scale-95 transition flex flex-col items-center justify-center gap-0.5 group w-full`;
+                btn.title = `${e.name} (${e.key})`;
 
                 btn.innerHTML = `
-                    <span class="text-base sm:text-lg group-hover:scale-110 transition-transform">${e.icon}</span>
-                    <span class="text-[10px] sm:text-xs font-extrabold truncate w-full text-center text-gray-200">${e.name}</span>
-                    <span class="text-[9px] font-bold text-gray-500 uppercase px-1 rounded bg-gray-900/50">${e.type}</span>
+                    <div class="w-4 h-4 sm:w-7 sm:h-7 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        ${getEeveeImageHTML(e, 'w-full h-full object-contain')}
+                    </div>
+                    <span class="text-[8px] sm:text-[11px] font-extrabold truncate w-full text-center text-gray-200">${e.name}</span>
+                    <span class="text-[7px] font-bold text-gray-500 uppercase px-0.5 rounded bg-gray-900/50 hidden sm:inline-block">${e.type}</span>
                 `;
                 container.appendChild(btn);
             });
@@ -472,12 +529,20 @@
 
         function addEevee(eeveeId) {
             if (isGameOver || currentGuess.length >= SEQUENCE_LENGTH) return;
+            
+            const eevee = EEVEELUTIONS.find(e => e.id === eeveeId);
+            if (eevee) {
+                playSound('click');
+                playPokemonCry(eevee.sound);
+            }
+
             currentGuess.push(eeveeId);
             updateCurrentRowUI();
         }
 
         function handleBackspace() {
             if (isGameOver || currentGuess.length === 0) return;
+            playSound('click');
             currentGuess.pop();
             updateCurrentRowUI();
         }
@@ -491,14 +556,14 @@
                 if (c < currentGuess.length) {
                     const eevee = EEVEELUTIONS.find(e => e.id === currentGuess[c]);
                     front.innerHTML = `
-                        <span class="text-sm sm:text-base">${eevee.icon}</span>
-                        <span class="text-[8px] sm:text-[10px] font-extrabold leading-tight text-center px-0.5 truncate w-full" style="color: ${eevee.color}">${eevee.name}</span>
+                        ${getEeveeImageHTML(eevee, "w-3.5 h-3.5 sm:w-7 sm:h-7")}
+                        <span class="text-[7px] sm:text-[9px] font-extrabold leading-none text-center truncate w-full" style="color: ${eevee.color}">${eevee.name}</span>
                     `;
                     front.classList.remove('border-gray-800');
                     front.classList.add('border-amber-500/70', 'bg-gray-800', 'tile-pop');
                 } else {
                     front.innerHTML = '';
-                    front.className = 'flip-front absolute inset-0 rounded-lg sm:rounded-xl border-2 border-gray-800 bg-gray-900/90 flex flex-col items-center justify-center text-xs font-bold text-gray-300';
+                    front.className = 'flip-front absolute inset-0 rounded-md sm:rounded-xl border border-gray-800 bg-gray-900/90 flex flex-col items-center justify-center text-[10px] font-bold text-gray-300';
                 }
             }
         }
@@ -509,29 +574,36 @@
             const rowEl = document.getElementById(`row-${currentAttempt}`);
 
             if (currentGuess.length < SEQUENCE_LENGTH) {
+                playSound('failed');
                 rowEl.classList.add('shake');
-                setTimeout(() => rowEl.classList.remove('shake'), 500);
+                setTimeout(() => rowEl.classList.remove('shake'), 400);
                 return;
             }
 
             const guessToSubmit = [...currentGuess];
             submittedGuesses.push(guessToSubmit);
 
+            playSound('flip');
+
             const isWin = evaluateAndRenderRow(guessToSubmit, currentAttempt, true);
 
             if (isWin || currentAttempt >= MAX_ATTEMPTS - 1) {
                 isGameOver = true;
                 saveDailyState(isWin);
-                setTimeout(() => showEndModal(isWin), SEQUENCE_LENGTH * 100 + 400);
+                
+                setTimeout(() => {
+                    playSound(isWin ? 'success' : 'failed');
+                    showEndModal(isWin);
+                }, SEQUENCE_LENGTH * 50 + 250);
             } else {
                 currentAttempt++;
                 currentGuess = [];
                 saveDailyState(false);
-                document.getElementById('attemptIndicator').textContent = `Attempt ${currentAttempt + 1} of ${MAX_ATTEMPTS}`;
+                document.getElementById('attemptIndicator').textContent = `Attempt ${currentAttempt + 1}/${MAX_ATTEMPTS}`;
             }
         }
 
-        function evaluateAndRenderRow(guess, rowIndex, animated = true) {
+        function getGuessEvaluation(guess) {
             const evaluation = Array(SEQUENCE_LENGTH).fill('GRAY');
             const targetCounts = {};
 
@@ -558,7 +630,12 @@
                 }
             }
 
-            // Apply visual styles
+            return evaluation;
+        }
+
+        function evaluateAndRenderRow(guess, rowIndex, animated = true) {
+            const evaluation = getGuessEvaluation(guess);
+
             for (let c = 0; c < SEQUENCE_LENGTH; c++) {
                 const cell = document.getElementById(`cell-${rowIndex}-${c}`);
                 if (!cell) continue;
@@ -566,26 +643,88 @@
                 const eevee = EEVEELUTIONS.find(e => e.id === guess[c]);
 
                 back.innerHTML = `
-                    <span class="text-sm sm:text-base">${eevee.icon}</span>
-                    <span class="text-[8px] sm:text-[10px] font-black leading-tight text-center px-0.5 truncate w-full drop-shadow">${eevee.name}</span>
+                    ${getEeveeImageHTML(eevee, "w-3.5 h-3.5 sm:w-7 sm:h-7")}
+                    <span class="text-[7px] sm:text-[9px] font-black leading-none text-center truncate w-full drop-shadow">${eevee.name}</span>
                 `;
 
                 if (evaluation[c] === 'GREEN') {
-                    back.className = 'flip-back absolute inset-0 rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-xs font-bold text-white bg-gradient-to-b from-emerald-500 to-emerald-700 border-2 border-emerald-400 shadow-lg';
+                    back.className = 'flip-back absolute inset-0 rounded-md sm:rounded-xl flex flex-col items-center justify-center text-xs font-bold text-white bg-gradient-to-b from-emerald-500 to-emerald-700 border border-emerald-400 shadow-lg';
                 } else if (evaluation[c] === 'YELLOW') {
-                    back.className = 'flip-back absolute inset-0 rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-xs font-bold text-white bg-gradient-to-b from-amber-500 to-amber-700 border-2 border-amber-300 shadow-lg';
+                    back.className = 'flip-back absolute inset-0 rounded-md sm:rounded-xl flex flex-col items-center justify-center text-xs font-bold text-white bg-gradient-to-b from-amber-500 to-amber-700 border border-amber-300 shadow-lg';
                 } else {
-                    back.className = 'flip-back absolute inset-0 rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-xs font-bold text-gray-400 bg-gray-800 border-2 border-gray-700 opacity-70';
+                    back.className = 'flip-back absolute inset-0 rounded-md sm:rounded-xl flex flex-col items-center justify-center text-xs font-bold text-gray-400 bg-gray-800 border border-gray-700 opacity-70';
                 }
 
                 if (animated) {
-                    setTimeout(() => cell.classList.add('flipped'), c * 100);
+                    setTimeout(() => cell.classList.add('flipped'), c * 50);
                 } else {
                     cell.classList.add('flipped');
                 }
             }
 
             return evaluation.every(res => res === 'GREEN');
+        }
+
+        /* --- Share Result Feature --- */
+        function generateShareText() {
+            const todayStr = getLocalDateString();
+            // Directly use submittedGuesses.length (e.g., 2/7, 5/7, or 7/7 if lost)
+            const scoreStr = `${submittedGuesses.length}/${MAX_ATTEMPTS}`;
+
+            const headerStr = gameMode === 'daily' 
+                ? `🗓️ Eevee-dle ${todayStr} (${scoreStr})` 
+                : `♾️ Eevee-dle Free Play (${scoreStr})`;
+
+            const gridLines = submittedGuesses.map(guess => {
+                const evalArr = getGuessEvaluation(guess);
+                return evalArr.map(res => {
+                    if (res === 'GREEN') return '🟩';
+                    if (res === 'YELLOW') return '🟨';
+                    return '⬛';
+                }).join('');
+            }).join('\n');
+
+            const shareUrl = 'http://feesh.run.place/eevee-wordle/';
+
+            return `${headerStr}\n\n${gridLines}\n\n${shareUrl}`;
+        }
+
+        async function shareResult() {
+            const textToShare = generateShareText();
+
+            // Native Web Share API (Mobile standard)
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Eevee-dle Result',
+                        text: textToShare
+                    });
+                    return;
+                } catch (err) {
+                    // Fallback to clipboard if canceled or unsupported
+                }
+            }
+
+            // Clipboard API Fallback
+            try {
+                await navigator.clipboard.writeText(textToShare);
+                showToast("Result copied to clipboard! 📋");
+            } catch (err) {
+                alert("Here is your result:\n\n" + textToShare);
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            if (!toast) return;
+            toast.textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
+            }, 2500);
         }
 
         function showEndModal(isWin) {
@@ -601,17 +740,17 @@
             if (isWin) {
                 emoji.textContent = '🎉';
                 title.textContent = 'VICTORY!';
-                title.className = 'text-2xl font-black text-emerald-400 mb-1';
-                subtitle.textContent = gameMode === 'daily' ? "You solved today's Daily Eeveelution sequence!" : 'You solved the Free Play sequence!';
+                title.className = 'text-xl sm:text-2xl font-black text-emerald-400 mb-1';
+                subtitle.textContent = gameMode === 'daily' ? "You solved today's Daily sequence!" : 'You solved the Free Play sequence!';
             } else {
-                emoji.textContent = '😭';
+                emoji.textContent = '💔';
                 title.textContent = 'GAME OVER';
-                title.className = 'text-2xl font-black text-red-400 mb-1';
-                subtitle.textContent = 'You ran out of attempts! Here is the hidden sequence:';
+                title.className = 'text-xl sm:text-2xl font-black text-red-400 mb-1';
+                subtitle.textContent = 'You ran out of attempts! Hidden sequence:';
             }
 
             attemptsBox.textContent = `${submittedGuesses.length}/${MAX_ATTEMPTS}`;
-            modeBox.textContent = gameMode === 'daily' ? 'Daily Challenge' : 'Free Play';
+            modeBox.textContent = gameMode === 'daily' ? 'Daily' : 'Free Play';
 
             if (gameMode === 'daily') {
                 modalTimerContainer.classList.remove('hidden');
@@ -626,10 +765,12 @@
             secretSequence.forEach(id => {
                 const e = EEVEELUTIONS.find(item => item.id === id);
                 const itemEl = document.createElement('div');
-                itemEl.className = 'flex flex-col items-center bg-gray-900 p-1.5 rounded-lg border border-gray-800 w-8 sm:w-10';
+                itemEl.className = 'flex flex-col items-center bg-gray-900 p-1 rounded-lg border border-gray-800 w-7 sm:w-9';
                 itemEl.innerHTML = `
-                    <span class="text-xs sm:text-sm">${e.icon}</span>
-                    <span class="text-[7px] font-bold text-gray-300 truncate w-full text-center" style="color: ${e.color}">${e.name}</span>
+                    <div class="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+                        ${getEeveeImageHTML(e, "w-full h-full object-contain")}
+                    </div>
+                    <span class="text-[6px] sm:text-[7px] font-bold text-gray-300 truncate w-full text-center" style="color: ${e.color}">${e.name}</span>
                 `;
                 solutionBox.appendChild(itemEl);
             });
@@ -646,32 +787,37 @@
             }
         }
 
-        // Countdown Timer to Midnight Reset
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('hidden');
+        }
+
         function startCountdownTimer() {
             function updateTimer() {
                 const now = new Date();
-                const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-                const diff = nextMidnight - now;
+                const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+                const diff = tomorrow - now;
 
                 const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
                 const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
                 const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
 
-                const formatted = `${hours}:${minutes}:${seconds}`;
-                document.getElementById('resetTimer').textContent = formatted;
-                document.getElementById('modalResetTimer').textContent = formatted;
+                const timeStr = `${hours}:${minutes}:${seconds}`;
+                
+                const resetTimer = document.getElementById('resetTimer');
+                const modalResetTimer = document.getElementById('modalResetTimer');
+                
+                if (resetTimer) resetTimer.textContent = timeStr;
+                if (modalResetTimer) modalResetTimer.textContent = timeStr;
             }
 
             updateTimer();
             setInterval(updateTimer, 1000);
-        }
-
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
         }
     </script>
 </body>

@@ -121,8 +121,8 @@
         }
 
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
         }
         ::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.05);
@@ -210,9 +210,9 @@
             </span>
         </div>
 
-        <!-- Board Viewport Container (Scrollable internally when grid > 7 or screen is tight) -->
-        <div class="w-full flex-1 flex items-center justify-center min-h-0 overflow-auto py-1 px-1">
-            <div id="gridContainer" class="m-auto flex flex-col justify-center gap-1 sm:gap-1.5 p-2 sm:p-3 bg-gray-900/60 rounded-2xl border border-gray-800 shadow-2xl backdrop-blur-md max-w-full">
+        <!-- Board Viewport Container (Uses safe center for smart dynamic alignment) -->
+        <div id="boardViewport" class="w-full flex-1 flex min-h-0 overflow-auto p-2" style="justify-content: safe center; align-items: safe center;">
+            <div id="gridContainer" class="flex flex-col justify-center gap-1 sm:gap-1.5 p-2 sm:p-3 bg-gray-900/60 rounded-2xl border border-gray-800 shadow-2xl backdrop-blur-md w-max my-auto">
                 <!-- Grid rows generated programmatically -->
             </div>
         </div>
@@ -621,19 +621,14 @@
 
             document.getElementById('submitBtnText').textContent = `SUBMIT (${currentSequenceLength})`;
 
-            // If rows or cols exceed 7, use explicit min-width tile sizes so scrollbars kick in seamlessly
-            const needsScroll = currentMaxAttempts > 7 || currentSequenceLength > 7;
-            
-            let cardClasses = 'w-full max-w-[56px] sm:max-w-[66px] aspect-[3/4] max-h-[8vh]';
-            if (needsScroll) {
-                cardClasses = 'w-[44px] sm:w-[54px] aspect-[3/4] shrink-0';
-            }
+            // Responsive card sizing
+            let cardClasses = 'w-[44px] sm:w-[54px] aspect-[3/4] shrink-0';
 
             for (let r = 0; r < currentMaxAttempts; r++) {
                 const rowEl = document.createElement('div');
                 rowEl.id = `row-${r}`;
-                rowEl.className = 'grid gap-1 justify-center w-full mx-auto';
-                rowEl.style.gridTemplateColumns = `repeat(${currentSequenceLength}, minmax(0, 1fr))`;
+                rowEl.className = `grid gap-1 sm:gap-1.5 justify-center w-max mx-auto`;
+                rowEl.style.gridTemplateColumns = `repeat(${currentSequenceLength}, max-content)`;
 
                 for (let c = 0; c < currentSequenceLength; c++) {
                     const cellEl = document.createElement('div');
@@ -760,7 +755,7 @@
                 saveDailyState(false);
                 document.getElementById('attemptIndicator').textContent = `Attempt ${currentAttempt + 1}/${currentMaxAttempts}`;
                 
-                // Auto-scroll current active row into view if overflow active
+                // Auto-scroll active row into view
                 const nextRow = document.getElementById(`row-${currentAttempt}`);
                 if (nextRow) {
                     nextRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -837,7 +832,7 @@
 
             const headerStr = gameMode === 'daily' 
                 ? `🗓️ Eevee-dle ${todayStr} (${scoreStr})` 
-                : `♾️ Eevee-dle Free Play [${gridDimensionsStr}] (${scoreStr})`;
+                : `🎮 Eevee-dle Free Play [${gridDimensionsStr}] (${scoreStr})`;
 
             const gridLines = submittedGuesses.map(guess => {
                 const evalArr = getGuessEvaluation(guess);

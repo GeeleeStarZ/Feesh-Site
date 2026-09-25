@@ -80,7 +80,7 @@
             inset: 0;
             width: 100%;
             height: 100%;
-            border-radius: 0.75rem;
+            border-radius: 0.5rem;
         }
 
         .flip-back {
@@ -92,7 +92,7 @@
         }
 
         .auto-fit-text {
-            font-size: clamp(8px, 14cqw, 13px);
+            font-size: clamp(7px, 15cqw, 12px);
             line-height: 1.1;
             letter-spacing: -0.01em;
             white-space: nowrap;
@@ -101,8 +101,8 @@
         }
 
         .key-text {
-            font-size: clamp(8px, 16cqw, 12px);
-            line-height: 1.1;
+            font-size: clamp(7px, 16cqw, 11px);
+            line-height: 1;
             letter-spacing: -0.01em;
             white-space: nowrap;
             overflow: hidden;
@@ -136,8 +136,8 @@
         }
 
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.05);
@@ -152,38 +152,38 @@
         }
     </style>
 </head>
-<body class="flex flex-col justify-between h-screen h-fill-available w-full max-w-6xl mx-auto p-1.5 sm:p-3 select-none overflow-hidden">
+<body class="flex flex-col justify-between h-screen h-fill-available w-full max-w-6xl mx-auto p-1 sm:p-3 select-none overflow-hidden">
 
     <!-- Header -->
-    <header class="w-full flex items-center justify-between py-1 px-1 border-b border-gray-800 gap-1.5 shrink-0">
+    <header class="w-full flex items-center justify-between py-1 px-1 border-b border-gray-800 gap-1 shrink-0">
         <div class="flex items-center">
-            <h1 class="text-lg sm:text-2xl font-black tracking-wider eeveelution-gradient-text drop-shadow">
+            <h1 class="text-base sm:text-2xl font-black tracking-wider eeveelution-gradient-text drop-shadow">
                 EEVEE-DLE
             </h1>
         </div>
 
         <!-- Primary Top Tabs -->
         <div class="flex items-center gap-1 flex-wrap justify-end">
-            <div class="bg-gray-900 p-0.5 sm:p-1 rounded-xl border border-gray-800 flex items-center text-[11px] sm:text-xs font-bold gap-0.5 sm:gap-1">
-                <button id="tabDaily" onclick="setPrimaryTab('daily')" class="px-2.5 py-1.5 sm:px-3 rounded-lg transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md">
+            <div class="bg-gray-900 p-0.5 sm:p-1 rounded-xl border border-gray-800 flex items-center text-[10px] sm:text-xs font-bold gap-0.5 sm:gap-1">
+                <button id="tabDaily" onclick="setPrimaryTab('daily')" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md">
                     <span>📅</span>
                     <span>Daily</span>
                 </button>
-                <button id="tabNormal" onclick="setPrimaryTab('normal')" class="px-2.5 py-1.5 sm:px-3 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white">
+                <button id="tabNormal" onclick="setPrimaryTab('normal')" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white">
                     <span>🎯</span>
                     <span>Normal</span>
                 </button>
-                <button id="tabFreePlay" onclick="setPrimaryTab('freeplay')" class="px-2.5 py-1.5 sm:px-3 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white">
+                <button id="tabFreePlay" onclick="setPrimaryTab('freeplay')" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white">
                     <span>♾️</span>
-                    <span>Free Play</span>
+                    <span>Free</span>
                 </button>
             </div>
 
-            <button onclick="openModal('howToPlayModal')" class="px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-gray-800 hover:bg-gray-700 transition text-xs font-semibold flex items-center gap-1 border border-gray-700">
+            <button onclick="openModal('howToPlayModal')" class="px-2 py-1 sm:px-3 sm:py-2 rounded-xl bg-gray-800 hover:bg-gray-700 transition text-xs font-semibold flex items-center gap-1 border border-gray-700">
                 <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span class="hidden sm:inline">Rules</span>
             </button>
-            <button id="btnNewGame" onclick="resetGame()" class="px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition text-xs font-semibold flex items-center gap-1 shadow-md hidden">
+            <button id="btnNewGame" onclick="resetGame()" class="px-2 py-1 sm:px-3 sm:py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition text-xs font-semibold flex items-center gap-1 shadow-md hidden">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 <span class="hidden xs:inline">New Game</span>
             </button>
@@ -196,7 +196,7 @@
     </div>
 
     <!-- Main Game Section -->
-    <main class="w-full flex-1 flex flex-col items-center justify-between min-h-0 py-1 gap-1 overflow-hidden">
+    <main class="w-full flex-1 flex flex-col items-center justify-between min-h-0 py-0.5 gap-1 overflow-hidden">
         
         <!-- Normal Mode Difficulty Selector Sub-Bar -->
         <div id="normalDifficultyBar" class="hidden w-full max-w-md bg-gray-900/90 border border-gray-800 rounded-xl p-1 sm:p-1.5 flex items-center justify-between gap-1 shadow-md shrink-0 text-xs">
@@ -227,7 +227,7 @@
             </div>
         </div>
 
-        <div class="flex items-center justify-between w-full max-w-3xl px-2 text-xs font-semibold shrink-0">
+        <div class="flex items-center justify-between w-full max-w-3xl px-1 text-xs font-semibold shrink-0">
             <span id="modeIndicator" class="text-amber-400 font-bold flex items-center gap-1 text-[11px] sm:text-xs">
                 📅 Daily Challenge
             </span>
@@ -239,24 +239,26 @@
             </span>
         </div>
 
-        <div id="boardViewport" class="w-full flex-1 flex min-h-0 overflow-auto p-1.5" style="justify-content: safe center; align-items: safe center;">
-            <div id="gridContainer" class="bg-gray-900/60 rounded-2xl border border-gray-800 shadow-2xl relative my-auto">
+        <div id="boardViewport" class="w-full flex-1 flex min-h-0 overflow-auto p-1" style="justify-content: safe center; align-items: safe center;">
+            <div id="gridContainer" class="bg-gray-900/60 rounded-xl border border-gray-800 shadow-2xl relative my-auto">
             </div>
         </div>
     </main>
 
-    <!-- Controls -->
-    <footer class="w-full flex flex-col gap-1.5 p-1.5 sm:p-2 bg-gray-900/90 rounded-2xl border border-gray-800 shadow-xl backdrop-blur-md shrink-0">
-        <div id="selectorButtons" class="grid grid-cols-9 gap-1">
+    <!-- Mobile-Optimized Controls Area -->
+    <footer class="w-full flex flex-col gap-1.5 p-1 sm:p-2 bg-gray-900/90 rounded-2xl border border-gray-800 shadow-xl backdrop-blur-md shrink-0">
+        <!-- Enlarged Touch Selector Grid -->
+        <div id="selectorButtons" class="grid grid-cols-9 gap-0.5 sm:gap-1.5 w-full">
         </div>
 
-        <div class="flex items-center justify-between gap-1.5 sm:gap-2">
-            <button onclick="handleBackspace()" class="flex-1 py-2.5 sm:py-3 rounded-xl bg-gray-800 hover:bg-gray-700 active:scale-95 transition font-black text-gray-200 text-xs sm:text-sm flex items-center justify-center gap-1 border border-gray-700 shadow-md">
-                <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V6a2 2 0 00-2-2H10.828a2 2 0 00-1.414.586L3 12z"></path></svg>
+        <!-- Prominent Action Buttons -->
+        <div class="flex items-center justify-between gap-1.5 sm:gap-2 w-full">
+            <button onclick="handleBackspace()" class="flex-1 py-3 sm:py-3.5 rounded-xl bg-gray-800 hover:bg-gray-700 active:scale-95 transition font-black text-gray-200 text-xs sm:text-sm flex items-center justify-center gap-1 border border-gray-700 shadow-md">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V6a2 2 0 00-2-2H10.828a2 2 0 00-1.414.586L3 12z"></path></svg>
                 <span>DEL</span>
             </button>
-            <button id="submitBtn" onclick="handleSubmit()" class="flex-[2.5] py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 transition font-black text-white text-xs sm:text-sm tracking-wider uppercase shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+            <button id="submitBtn" onclick="handleSubmit()" class="flex-[2.5] py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 transition font-black text-white text-xs sm:text-sm tracking-wider uppercase shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-1.5">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                 <span id="submitBtnText">SUBMIT (9)</span>
             </button>
         </div>
@@ -507,7 +509,7 @@
             } catch(e) {}
         }
 
-        function getEeveeImageHTML(eevee, imgClasses = "w-full h-[58%] object-contain shrink-0") {
+        function getEeveeImageHTML(eevee, imgClasses = "w-full h-full object-contain shrink-0") {
             if (eevee && eevee.image) {
                 return `<img src="${eevee.image}" alt="${eevee.name}" class="${imgClasses}" onerror="this.outerHTML='<span class=\\'text-base sm:text-xl\\'>${eevee.icon}</span>'">`;
             }
@@ -531,10 +533,23 @@
         let submittedGuesses = [];
         let isGameOver = false;
 
-        const CELL_WIDTH = 58;
-        const CELL_HEIGHT = 78;
+        // Mobile responsive dynamic dimension calculation
+        let CELL_WIDTH = 40;
+        let CELL_HEIGHT = 56;
         const BUFFER_SIZE = 3;
         let newlyAddedCellIdx = -1;
+
+        function updateCellDimensions() {
+            const viewport = document.getElementById('boardViewport');
+            const availableWidth = viewport ? viewport.clientWidth - 12 : window.innerWidth - 16;
+            
+            if (currentSequenceLength <= 9) {
+                CELL_WIDTH = Math.min(54, Math.max(36, Math.floor(availableWidth / currentSequenceLength)));
+            } else {
+                CELL_WIDTH = Math.min(54, Math.max(32, Math.floor((availableWidth * 0.95) / currentSequenceLength)));
+            }
+            CELL_HEIGHT = Math.round(CELL_WIDTH * 1.35);
+        }
 
         window.onload = function() {
             initKeyboard();
@@ -552,6 +567,11 @@
                     });
                     isScrolling = true;
                 }
+            });
+
+            window.addEventListener('resize', () => {
+                updateCellDimensions();
+                initBoard();
             });
 
             document.addEventListener('keydown', (e) => {
@@ -638,8 +658,8 @@
             const countdownContainer = document.getElementById('countdownContainer');
             const btnNewGame = document.getElementById('btnNewGame');
 
-            const unselectedClass = "px-2.5 py-1.5 sm:px-3 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white";
-            const selectedClass = "px-2.5 py-1.5 sm:px-3 rounded-lg transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md";
+            const unselectedClass = "px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white";
+            const selectedClass = "px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md";
 
             tabDaily.className = unselectedClass;
             tabNormal.className = unselectedClass;
@@ -704,22 +724,22 @@
                 diffEasy.className = selected;
                 currentSequenceLength = 6;
                 currentMaxAttempts = 8;
-                modeInd.innerHTML = '🥹 Normal - Easy Mode (6 Cols × 8 Rows)';
+                modeInd.innerHTML = '🥹 Normal - Easy (6 Col × 8 Row)';
             } else if (diff === 'standard') {
                 diffStandard.className = selected;
                 currentSequenceLength = 9;
                 currentMaxAttempts = 7;
-                modeInd.innerHTML = '🔥 Normal Mode (9 Cols × 7 Rows)';
+                modeInd.innerHTML = '🔥 Normal (9 Col × 7 Row)';
             } else if (diff === 'hard') {
                 diffHard.className = selected;
                 currentSequenceLength = 10;
                 currentMaxAttempts = 5;
-                modeInd.innerHTML = '👀 Normal - Hard Mode (10 Cols × 5 Rows)';
+                modeInd.innerHTML = '👀 Normal - Hard (10 Col × 5 Row)';
             } else if (diff === 'insane') {
                 diffInsane.className = selected;
                 currentSequenceLength = 12;
                 currentMaxAttempts = 4;
-                modeInd.innerHTML = '😼 Normal - Insane Mode (12 Cols × 4 Rows)';
+                modeInd.innerHTML = '😼 Normal - Insane (12 Col × 4 Row)';
             }
 
             updateUrlQuery();
@@ -846,6 +866,8 @@
         }
 
         function initBoard() {
+            updateCellDimensions();
+
             const container = document.getElementById('gridContainer');
             container.innerHTML = '';
 
@@ -910,6 +932,11 @@
         }
 
         function updateVirtualCell(cellEl, r, c) {
+            cellEl.style.width = `${CELL_WIDTH - 2}px`;
+            cellEl.style.height = `${CELL_HEIGHT - 2}px`;
+            cellEl.style.left = `${c * CELL_WIDTH}px`;
+            cellEl.style.top = `${r * CELL_HEIGHT}px`;
+
             const isSubmitted = r < submittedGuesses.length;
             const isCurrentRow = r === currentAttempt;
 
@@ -937,13 +964,13 @@
                 if (eevee) {
                     backContent = `
                         <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
-                            ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
+                            ${getEeveeImageHTML(eevee, "w-full h-[62%] object-contain shrink-0")}
                             <span class="auto-fit-text font-black text-center w-full shrink-0 drop-shadow">${eevee.name}</span>
                         </div>
                     `;
                 }
 
-                back.className = `flip-back tile-container absolute inset-0 rounded-xl flex flex-col items-center justify-between border-2 p-0.5 sm:p-1 overflow-hidden ${backBg}`;
+                back.className = `flip-back tile-container absolute inset-0 rounded-lg flex flex-col items-center justify-between border-2 p-0.5 overflow-hidden ${backBg}`;
                 back.innerHTML = backContent;
 
                 if (!inner.classList.contains('flipped')) {
@@ -958,7 +985,7 @@
                     if (eevee) {
                         frontContent = `
                             <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
-                                ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
+                                ${getEeveeImageHTML(eevee, "w-full h-[62%] object-contain shrink-0")}
                                 <span class="auto-fit-text font-black text-center w-full shrink-0" style="color: ${eevee.color}">${eevee.name}</span>
                             </div>
                         `;
@@ -970,16 +997,14 @@
                 const frontBorder = (isCurrentRow && c < currentGuess.length) 
                     ? `border-amber-400 bg-gray-800 ${shouldPop ? 'tile-pop' : ''}` 
                     : 'border-gray-800 bg-gray-900/90';
-                front.className = `flip-front tile-container absolute inset-0 rounded-xl border-2 ${frontBorder} flex flex-col items-center justify-between p-0.5 sm:p-1 overflow-hidden`;
+                front.className = `flip-front tile-container absolute inset-0 rounded-lg border-2 ${frontBorder} flex flex-col items-center justify-between p-0.5 overflow-hidden`;
             }
         }
 
         function createVirtualCell(r, c) {
             const cellEl = document.createElement('div');
             cellEl.id = `cell-${r}-${c}`;
-            cellEl.className = `flip-card w-[54px] aspect-[3/4] absolute`;
-            cellEl.style.left = `${c * CELL_WIDTH}px`;
-            cellEl.style.top = `${r * CELL_HEIGHT}px`;
+            cellEl.className = `flip-card absolute`;
 
             cellEl.innerHTML = `
                 <div class="flip-inner">
@@ -1000,15 +1025,15 @@
             EEVEELUTIONS.forEach(e => {
                 const btn = document.createElement('button');
                 btn.onclick = () => addEevee(e.id);
-                btn.className = `tile-container px-0.5 py-1 sm:p-1.5 rounded-xl bg-gray-800/90 border border-gray-700 hover:border-amber-400 active:scale-95 transition flex flex-col items-center justify-between group w-full h-11 sm:h-14 overflow-hidden shadow-sm`;
+                btn.className = `tile-container p-1 rounded-xl bg-gray-800 border border-gray-700 hover:border-amber-400 active:scale-95 transition flex flex-col items-center justify-between group w-full h-14 sm:h-16 overflow-hidden shadow-md`;
                 btn.title = `${e.name} (${e.key})`;
 
                 btn.innerHTML = `
-                    <div class="w-4 h-4 sm:w-6 sm:h-6 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                        ${getEeveeImageHTML(e, 'w-full h-full object-contain')}
+                    <div class="w-full h-[45%] flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                        ${getEeveeImageHTML(e, 'h-full w-auto object-contain')}
                     </div>
-                    <span class="key-text font-black w-full text-center text-gray-200 text-[9px] sm:text-[11px] leading-tight">${e.name}</span>
-                    <span class="text-[7.5px] sm:text-[8px] font-bold text-gray-400 uppercase px-0.5 rounded bg-gray-900/60 hidden sm:inline-block shrink-0">${e.type}</span>
+                    <span class="key-text font-black w-full text-center text-gray-100 shrink-0 leading-tight">${e.name}</span>
+                    <span class="text-[7px] sm:text-[8px] font-bold text-gray-300 uppercase px-1 py-0.5 rounded bg-gray-900/80 shrink-0 leading-none">${e.type}</span>
                 `;
                 container.appendChild(btn);
             });

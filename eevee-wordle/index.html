@@ -90,6 +90,16 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* Hide number input spin buttons for a cleaner custom UI */
+        input[type='number']::-webkit-inner-spin-button,
+        input[type='number']::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type='number'] {
+            -moz-appearance: textfield;
+        }
+
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -122,7 +132,7 @@
                 </button>
                 <button id="btnFreeMode" onclick="switchGameMode('free')" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 text-gray-400 hover:text-white">
                     <span>♾️</span>
-                    <span class="hidden xs:inline">Free</span>
+                    <span class="hidden xs:inline">Free Play</span>
                 </button>
             </div>
 
@@ -144,6 +154,25 @@
 
     <!-- Main Game Section -->
     <main class="w-full max-w-5xl flex-1 flex flex-col items-center justify-center my-0.5 gap-1">
+        
+        <!-- Free Play Custom Input Box -->
+        <div id="freeControls" class="hidden w-full max-w-md bg-gray-900/90 border border-gray-800 rounded-xl p-2.5 mb-0.5 flex flex-col gap-2 shadow-lg backdrop-blur-md">
+            <div class="flex items-center justify-between text-xs font-bold text-gray-300">
+                <span class="flex items-center gap-1">🎛️ Free Play Custom Grid</span>
+                <span id="gridDimensionsLabel" class="text-amber-400 font-mono">9 Cols × 7 Rows</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="flex flex-col gap-1">
+                    <label for="colInput" class="text-gray-400 font-semibold text-[11px]">Columns (Length):</label>
+                    <input type="number" id="colInput" min="1" value="9" oninput="updateFreeSettings()" class="bg-gray-800 border border-gray-700 text-amber-400 font-black font-mono rounded-lg px-2.5 py-1.5 text-xs text-center focus:outline-none focus:border-amber-500 transition shadow-inner" placeholder="Any #">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label for="rowInput" class="text-gray-400 font-semibold text-[11px]">Rows (Attempts):</label>
+                    <input type="number" id="rowInput" min="1" value="7" oninput="updateFreeSettings()" class="bg-gray-800 border border-gray-700 text-amber-400 font-black font-mono rounded-lg px-2.5 py-1.5 text-xs text-center focus:outline-none focus:border-amber-500 transition shadow-inner" placeholder="Any #">
+                </div>
+            </div>
+        </div>
+
         <!-- Status / Indicator Bar -->
         <div class="flex items-center justify-between w-full max-w-md px-2 text-[11px] sm:text-xs font-semibold">
             <span id="modeIndicator" class="text-amber-400 font-bold flex items-center gap-1">
@@ -157,9 +186,11 @@
             </span>
         </div>
 
-        <!-- Grid Container -->
-        <div id="gridContainer" class="flex flex-col gap-0.5 sm:gap-1.5 p-1 sm:p-2 bg-gray-900/60 rounded-xl border border-gray-800 shadow-2xl backdrop-blur-md max-w-full">
-            <!-- Grid rows generated programmatically -->
+        <!-- Scrollable Grid Container for Mobile Device Compatibility & Ultra-Wide Grids -->
+        <div class="w-full max-w-full overflow-x-auto flex py-1 px-1">
+            <div id="gridContainer" class="m-auto flex flex-col gap-1.5 sm:gap-2 p-2 sm:p-3 bg-gray-900/60 rounded-xl border border-gray-800 shadow-2xl backdrop-blur-md min-w-max">
+                <!-- Grid rows generated programmatically -->
+            </div>
         </div>
     </main>
 
@@ -178,7 +209,7 @@
             </button>
             <button id="submitBtn" onclick="handleSubmit()" class="flex-[2.5] py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 transition font-black text-white text-xs sm:text-sm tracking-wider uppercase shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-1">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                <span>SUBMIT (10)</span>
+                <span id="submitBtnText">SUBMIT (9)</span>
             </button>
         </div>
     </footer>
@@ -192,8 +223,8 @@
             <h2 class="text-xl sm:text-2xl font-black text-amber-400 mb-2 flex items-center gap-2">
                 <span>🎮 How to Play</span>
             </h2>
-            <p class="text-gray-300 mb-3 leading-relaxed">
-                Guess the secret 10-length sequence of Eeveelutions in <strong>7 attempts</strong>!
+            <p id="rulesDescription" class="text-gray-300 mb-3 leading-relaxed">
+                Guess the secret sequence of Eeveelutions before running out of attempts!
             </p>
             
             <div class="space-y-2 mb-4">
@@ -237,7 +268,7 @@
 
             <div class="my-3">
                 <span class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Secret Sequence Was:</span>
-                <div id="solutionDisplay" class="flex flex-wrap justify-center gap-1 p-2 bg-gray-950 rounded-xl border border-gray-800">
+                <div id="solutionDisplay" class="flex flex-wrap justify-center gap-1 p-2 bg-gray-950 rounded-xl border border-gray-800 max-h-40 overflow-y-auto">
                 </div>
             </div>
 
@@ -258,7 +289,7 @@
                 </button>
 
                 <button id="modalActionBtn" onclick="handleModalAction()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-900 font-extrabold transition shadow-lg text-xs sm:text-sm uppercase tracking-wider">
-                    Play Unlimited Mode
+                    Play Free Play Mode
                 </button>
             </div>
         </div>
@@ -354,15 +385,22 @@
             } catch(e) {}
         }
 
-        function getEeveeImageHTML(eevee, imgClasses = "w-4 h-4 sm:w-7 sm:h-7") {
+        function getEeveeImageHTML(eevee, imgClasses = "w-full h-[58%] max-h-[38px] object-contain shrink-0") {
             if (eevee && eevee.image) {
-                return `<img src="${eevee.image}" alt="${eevee.name}" class="${imgClasses} object-contain" onerror="this.outerHTML='<span class=\\'text-xs sm:text-base\\'>${eevee.icon}</span>'">`;
+                return `<img src="${eevee.image}" alt="${eevee.name}" class="${imgClasses}" onerror="this.outerHTML='<span class=\\'text-sm\\'>${eevee.icon}</span>'">`;
             }
-            return `<span class="text-xs sm:text-base">${eevee ? eevee.icon : ''}</span>`;
+            return `<span class="text-sm">${eevee ? eevee.icon : ''}</span>`;
         }
 
-        const MAX_ATTEMPTS = 7;
-        const SEQUENCE_LENGTH = 10;
+        // Daily Mode defaults
+        const DAILY_ATTEMPTS = 7;
+        const DAILY_SEQUENCE_LENGTH = 9;
+
+        // Custom settings state
+        let currentMaxAttempts = DAILY_ATTEMPTS;
+        let currentSequenceLength = DAILY_SEQUENCE_LENGTH;
+        let freeMaxAttempts = 7;
+        let freeSequenceLength = 9;
 
         let gameMode = 'daily';
         let secretSequence = [];
@@ -372,7 +410,6 @@
         let isGameOver = false;
 
         window.onload = function() {
-            initBoard();
             initKeyboard();
             switchGameMode('daily');
             startCountdownTimer();
@@ -380,6 +417,11 @@
             document.addEventListener('keydown', (e) => {
                 if (isGameOver) return;
                 
+                // Avoid capturing typing if user is currently typing in input boxes
+                if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+                    return;
+                }
+
                 if (e.key >= '1' && e.key <= '9') {
                     const idx = parseInt(e.key) - 1;
                     if (EEVEELUTIONS[idx]) {
@@ -418,11 +460,33 @@
             }
             const prng = mulberry32(Math.abs(hash) + 12345);
             const sequence = [];
-            for (let i = 0; i < SEQUENCE_LENGTH; i++) {
+            for (let i = 0; i < DAILY_SEQUENCE_LENGTH; i++) {
                 const randIndex = Math.floor(prng() * EEVEELUTIONS.length);
                 sequence.push(EEVEELUTIONS[randIndex].id);
             }
             return sequence;
+        }
+
+        function updateFreeSettings() {
+            const rawCol = document.getElementById('colInput').value;
+            const rawRow = document.getElementById('rowInput').value;
+
+            let colVal = parseInt(rawCol);
+            let rowVal = parseInt(rawRow);
+
+            if (isNaN(colVal) || colVal < 1) colVal = 1;
+            if (isNaN(rowVal) || rowVal < 1) rowVal = 1;
+
+            document.getElementById('gridDimensionsLabel').textContent = `${colVal} Cols × ${rowVal} Rows`;
+
+            freeSequenceLength = colVal;
+            freeMaxAttempts = rowVal;
+
+            if (gameMode === 'free') {
+                currentSequenceLength = freeSequenceLength;
+                currentMaxAttempts = freeMaxAttempts;
+                resetFreeGame();
+            }
         }
 
         function switchGameMode(mode) {
@@ -433,20 +497,39 @@
             const modeInd = document.getElementById('modeIndicator');
             const countdownContainer = document.getElementById('countdownContainer');
             const btnNewGame = document.getElementById('btnNewGame');
+            const freeControls = document.getElementById('freeControls');
 
             if (mode === 'daily') {
+                currentMaxAttempts = DAILY_ATTEMPTS;
+                currentSequenceLength = DAILY_SEQUENCE_LENGTH;
                 btnDaily.className = "px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md";
                 btnFree.className = "px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 text-gray-400 hover:text-white";
                 modeInd.innerHTML = '📅 Daily Challenge';
                 countdownContainer.classList.remove('hidden');
                 btnNewGame.classList.add('hidden');
+                freeControls.classList.add('hidden');
                 loadDailyGame();
             } else {
+                freeSequenceLength = 9;
+                freeMaxAttempts = 7;
+
+                const colInput = document.getElementById('colInput');
+                const rowInput = document.getElementById('rowInput');
+                if (colInput) colInput.value = 9;
+                if (rowInput) rowInput.value = 7;
+                
+                const dimensionsLabel = document.getElementById('gridDimensionsLabel');
+                if (dimensionsLabel) dimensionsLabel.textContent = "9 Cols × 7 Rows";
+
+                currentMaxAttempts = freeMaxAttempts;
+                currentSequenceLength = freeSequenceLength;
+
                 btnFree.className = "px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md";
                 btnDaily.className = "px-2 py-1 sm:px-3 sm:py-1.5 rounded-md transition-all flex items-center gap-1 text-gray-400 hover:text-white";
                 modeInd.innerHTML = '♾️ Free Play Mode';
                 countdownContainer.classList.add('hidden');
                 btnNewGame.classList.remove('hidden');
+                freeControls.classList.remove('hidden');
                 resetFreeGame();
             }
         }
@@ -486,12 +569,12 @@
                 }
             }
 
-            document.getElementById('attemptIndicator').textContent = `Attempt ${Math.min(currentAttempt + 1, MAX_ATTEMPTS)}/${MAX_ATTEMPTS}`;
+            document.getElementById('attemptIndicator').textContent = `Attempt ${Math.min(currentAttempt + 1, currentMaxAttempts)}/${currentMaxAttempts}`;
         }
 
         function resetFreeGame() {
             secretSequence = [];
-            for (let i = 0; i < SEQUENCE_LENGTH; i++) {
+            for (let i = 0; i < currentSequenceLength; i++) {
                 const randIndex = Math.floor(Math.random() * EEVEELUTIONS.length);
                 secretSequence.push(EEVEELUTIONS[randIndex].id);
             }
@@ -501,7 +584,7 @@
             submittedGuesses = [];
             isGameOver = false;
 
-            document.getElementById('attemptIndicator').textContent = `Attempt 1/${MAX_ATTEMPTS}`;
+            document.getElementById('attemptIndicator').textContent = `Attempt 1/${currentMaxAttempts}`;
             initBoard();
         }
 
@@ -520,21 +603,32 @@
             const container = document.getElementById('gridContainer');
             container.innerHTML = '';
 
-            for (let r = 0; r < MAX_ATTEMPTS; r++) {
+            document.getElementById('submitBtnText').textContent = `SUBMIT (${currentSequenceLength})`;
+
+            // Dynamically assign tile max/min sizes based on sequence length so daily 9x7 stays full & large, while ultra-long grids scale gracefully
+            let cardSizeClasses = 'max-w-[54px] sm:max-w-[64px] min-w-[34px]';
+            if (currentSequenceLength > 15) {
+                cardSizeClasses = 'max-w-[32px] min-w-[24px]';
+            } else if (currentSequenceLength > 10) {
+                cardSizeClasses = 'max-w-[42px] min-w-[28px]';
+            }
+
+            for (let r = 0; r < currentMaxAttempts; r++) {
                 const rowEl = document.createElement('div');
                 rowEl.id = `row-${r}`;
-                rowEl.className = 'grid grid-cols-10 gap-0.5 sm:gap-1.5 justify-center';
+                rowEl.className = 'grid gap-1 sm:gap-1.5 justify-center w-full';
+                rowEl.style.gridTemplateColumns = `repeat(${currentSequenceLength}, minmax(0, 1fr))`;
 
-                for (let c = 0; c < SEQUENCE_LENGTH; c++) {
+                for (let c = 0; c < currentSequenceLength; c++) {
                     const cellEl = document.createElement('div');
                     cellEl.id = `cell-${r}-${c}`;
-                    cellEl.className = 'flip-card w-[9.2vw] max-w-[44px] h-[11.8vw] max-h-[58px] min-w-[28px] min-h-[36px]';
+                    cellEl.className = `flip-card w-full ${cardSizeClasses} aspect-[3/4] mx-auto`;
 
                     cellEl.innerHTML = `
                         <div class="flip-inner w-full h-full relative">
-                            <div class="flip-front absolute inset-0 rounded-md sm:rounded-xl border border-gray-800 bg-gray-900/90 flex flex-col items-center justify-center text-[10px] font-bold text-gray-300 p-0.5">
+                            <div class="flip-front absolute inset-0 rounded-lg border border-gray-800 bg-gray-900/90 flex flex-col items-center justify-center text-xs font-bold text-gray-300 p-1 overflow-hidden">
                             </div>
-                            <div class="flip-back absolute inset-0 rounded-md sm:rounded-xl flex flex-col items-center justify-center text-[10px] font-bold text-white shadow-inner p-0.5">
+                            <div class="flip-back absolute inset-0 rounded-lg flex flex-col items-center justify-center text-xs font-bold text-white shadow-inner p-1 overflow-hidden">
                             </div>
                         </div>
                     `;
@@ -566,7 +660,7 @@
         }
 
         function addEevee(eeveeId) {
-            if (isGameOver || currentGuess.length >= SEQUENCE_LENGTH) return;
+            if (isGameOver || currentGuess.length >= currentSequenceLength) return;
             
             const eevee = EEVEELUTIONS.find(e => e.id === eeveeId);
             if (eevee) {
@@ -586,7 +680,7 @@
         }
 
         function updateCurrentRowUI() {
-            for (let c = 0; c < SEQUENCE_LENGTH; c++) {
+            for (let c = 0; c < currentSequenceLength; c++) {
                 const cell = document.getElementById(`cell-${currentAttempt}-${c}`);
                 if (!cell) continue;
                 const front = cell.querySelector('.flip-front');
@@ -594,14 +688,14 @@
                 if (c < currentGuess.length) {
                     const eevee = EEVEELUTIONS.find(e => e.id === currentGuess[c]);
                     front.innerHTML = `
-                        ${getEeveeImageHTML(eevee, "w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-7 sm:h-7")}
-                        <span class="text-[6px] xs:text-[7px] sm:text-[9px] font-black tracking-tighter leading-none text-center w-full" style="color: ${eevee.color}">${eevee.name}</span>
+                        ${getEeveeImageHTML(eevee, "w-full h-[58%] max-h-[38px] object-contain shrink-0")}
+                        <span class="text-[7px] xs:text-[8px] sm:text-[10px] font-black tracking-tighter leading-none text-center w-full truncate shrink-0 mt-0.5" style="color: ${eevee.color}">${eevee.name}</span>
                     `;
                     front.classList.remove('border-gray-800');
                     front.classList.add('border-amber-500/70', 'bg-gray-800', 'tile-pop');
                 } else {
                     front.innerHTML = '';
-                    front.className = 'flip-front absolute inset-0 rounded-md sm:rounded-xl border border-gray-800 bg-gray-900/90 flex flex-col items-center justify-center text-[10px] font-bold text-gray-300 p-0.5';
+                    front.className = 'flip-front absolute inset-0 rounded-lg border border-gray-800 bg-gray-900/90 flex flex-col items-center justify-center text-xs font-bold text-gray-300 p-1 overflow-hidden';
                 }
             }
         }
@@ -611,8 +705,7 @@
 
             const rowEl = document.getElementById(`row-${currentAttempt}`);
 
-            // Immediate failed sound if row is incomplete
-            if (currentGuess.length < SEQUENCE_LENGTH) {
+            if (currentGuess.length < currentSequenceLength) {
                 playSound('failed');
                 rowEl.classList.add('shake');
                 setTimeout(() => rowEl.classList.remove('shake'), 400);
@@ -626,50 +719,47 @@
 
             const isWin = evaluateAndRenderRow(guessToSubmit, currentAttempt, true);
 
-            if (isWin || currentAttempt >= MAX_ATTEMPTS - 1) {
+            if (isWin || currentAttempt >= currentMaxAttempts - 1) {
                 isGameOver = true;
                 saveDailyState(isWin);
                 
-                // Play win/lose sound IMMEDIATELY without delay
                 if (isWin) {
-                    // Delay the victory sound until tiles finish flipping (~700ms)
                     setTimeout(() => {
                         playRandomWinSound();
-                    }, SEQUENCE_LENGTH * 50 + 200);
+                    }, currentSequenceLength * 50 + 200);
                 } else {  
                     setTimeout(() => {
                         playSound('failed');
-                    }, SEQUENCE_LENGTH * 50 + 200);
+                    }, currentSequenceLength * 50 + 200);
                 }
 
-                // Delay modal popup slightly to match flip animation completion
                 setTimeout(() => {
                     showEndModal(isWin);
-                }, SEQUENCE_LENGTH * 50 + 250);
+                }, currentSequenceLength * 50 + 250);
             } else {
                 currentAttempt++;
                 currentGuess = [];
                 saveDailyState(false);
-                document.getElementById('attemptIndicator').textContent = `Attempt ${currentAttempt + 1}/${MAX_ATTEMPTS}`;
+                document.getElementById('attemptIndicator').textContent = `Attempt ${currentAttempt + 1}/${currentMaxAttempts}`;
             }
         }
 
         function getGuessEvaluation(guess) {
-            const evaluation = Array(SEQUENCE_LENGTH).fill('GRAY');
+            const evaluation = Array(currentSequenceLength).fill('GRAY');
             const targetCounts = {};
 
             secretSequence.forEach(id => {
                 targetCounts[id] = (targetCounts[id] || 0) + 1;
             });
 
-            for (let i = 0; i < SEQUENCE_LENGTH; i++) {
+            for (let i = 0; i < currentSequenceLength; i++) {
                 if (guess[i] === secretSequence[i]) {
                     evaluation[i] = 'GREEN';
                     targetCounts[guess[i]] -= 1;
                 }
             }
 
-            for (let i = 0; i < SEQUENCE_LENGTH; i++) {
+            for (let i = 0; i < currentSequenceLength; i++) {
                 if (evaluation[i] !== 'GREEN') {
                     const guessedId = guess[i];
                     if (targetCounts[guessedId] && targetCounts[guessedId] > 0) {
@@ -685,23 +775,23 @@
         function evaluateAndRenderRow(guess, rowIndex, animated = true) {
             const evaluation = getGuessEvaluation(guess);
 
-            for (let c = 0; c < SEQUENCE_LENGTH; c++) {
+            for (let c = 0; c < currentSequenceLength; c++) {
                 const cell = document.getElementById(`cell-${rowIndex}-${c}`);
                 if (!cell) continue;
                 const back = cell.querySelector('.flip-back');
                 const eevee = EEVEELUTIONS.find(e => e.id === guess[c]);
 
                 back.innerHTML = `
-                    ${getEeveeImageHTML(eevee, "w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-7 sm:h-7")}
-                    <span class="text-[6px] xs:text-[7px] sm:text-[9px] font-black tracking-tighter leading-none text-center w-full drop-shadow">${eevee.name}</span>
+                    ${getEeveeImageHTML(eevee, "w-full h-[58%] max-h-[38px] object-contain shrink-0")}
+                    <span class="text-[7px] xs:text-[8px] sm:text-[10px] font-black tracking-tighter leading-none text-center w-full truncate shrink-0 drop-shadow mt-0.5">${eevee.name}</span>
                 `;
 
                 if (evaluation[c] === 'GREEN') {
-                    back.className = 'flip-back absolute inset-0 rounded-md sm:rounded-xl flex flex-col items-center justify-center text-xs font-bold text-white bg-gradient-to-b from-emerald-500 to-emerald-700 border border-emerald-400 shadow-lg p-0.5';
+                    back.className = 'flip-back absolute inset-0 rounded-lg flex flex-col items-center justify-center text-xs font-bold text-white bg-gradient-to-b from-emerald-500 to-emerald-700 border border-emerald-400 shadow-lg p-1 overflow-hidden';
                 } else if (evaluation[c] === 'YELLOW') {
-                    back.className = 'flip-back absolute inset-0 rounded-md sm:rounded-xl flex flex-col items-center justify-center text-xs font-bold text-white bg-gradient-to-b from-amber-500 to-amber-700 border border-amber-300 shadow-lg p-0.5';
+                    back.className = 'flip-back absolute inset-0 rounded-lg flex flex-col items-center justify-center text-xs font-bold text-white bg-gradient-to-b from-amber-500 to-amber-700 border border-amber-300 shadow-lg p-1 overflow-hidden';
                 } else {
-                    back.className = 'flip-back absolute inset-0 rounded-md sm:rounded-xl flex flex-col items-center justify-center text-xs font-bold text-gray-400 bg-gray-800 border border-gray-700 opacity-70 p-0.5';
+                    back.className = 'flip-back absolute inset-0 rounded-lg flex flex-col items-center justify-center text-xs font-bold text-gray-400 bg-gray-800 border border-gray-700 opacity-70 p-1 overflow-hidden';
                 }
 
                 if (animated) {
@@ -716,11 +806,12 @@
 
         function generateShareText() {
             const todayStr = getLocalDateString();
-            const scoreStr = `${submittedGuesses.length}/${MAX_ATTEMPTS}`;
+            const scoreStr = `${submittedGuesses.length}/${currentMaxAttempts}`;
+            const gridDimensionsStr = `${currentSequenceLength}x${currentMaxAttempts}`;
 
             const headerStr = gameMode === 'daily' 
                 ? `🗓️ Eevee-dle ${todayStr} (${scoreStr})` 
-                : `♾️ Eevee-dle Free Play (${scoreStr})`;
+                : `♾️ Eevee-dle Free Play [${gridDimensionsStr}] (${scoreStr})`;
 
             const gridLines = submittedGuesses.map(guess => {
                 const evalArr = getGuessEvaluation(guess);
@@ -731,7 +822,7 @@
                 }).join('');
             }).join('\n');
 
-            const shareUrl = window.location.href;
+            const shareUrl = "https://feesh.run.place/eevee-wordle/";
 
             return `${headerStr}\n${gridLines}\n\n${shareUrl}`;
         }
@@ -792,12 +883,12 @@
                 subtitle.textContent = 'You ran out of attempts! Hidden sequence:';
             }
 
-            attemptsBox.textContent = `${submittedGuesses.length}/${MAX_ATTEMPTS}`;
-            modeBox.textContent = gameMode === 'daily' ? 'Daily' : 'Free Play';
+            attemptsBox.textContent = `${submittedGuesses.length}/${currentMaxAttempts}`;
+            modeBox.textContent = gameMode === 'daily' ? 'Daily' : `Free Play (${currentSequenceLength}x${currentMaxAttempts})`;
 
             if (gameMode === 'daily') {
                 modalTimerContainer.classList.remove('hidden');
-                actionBtn.textContent = 'Play Unlimited Mode';
+                actionBtn.textContent = 'Play Free Play Mode';
             } else {
                 modalTimerContainer.classList.add('hidden');
                 actionBtn.textContent = 'Play Another Free Game';

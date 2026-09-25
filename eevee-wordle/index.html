@@ -56,31 +56,37 @@
 
         .flip-card {
             perspective: 1000px;
+            contain: layout style;
             transform: translateZ(0);
         }
 
         .flip-inner {
-            transition: transform 0.35s ease-out;
+            transition: transform 0.4s ease-out;
             transform-style: preserve-3d;
             will-change: transform;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
+            position: relative;
+            width: 100%;
+            height: 100%;
         }
 
-        .flipped .flip-inner {
+        .flipped {
             transform: rotateY(180deg);
         }
 
         .flip-front, .flip-back {
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.75rem;
         }
 
         .flip-back {
             transform: rotateY(180deg);
         }
 
-        /* Container Queries & Dynamic Scaling */
         .tile-container {
             container-type: inline-size;
         }
@@ -156,7 +162,6 @@
             </h1>
         </div>
 
-        <!-- Mode Toggle & Action Buttons -->
         <div class="flex items-center gap-1.5 flex-wrap justify-end">
             <div class="bg-gray-900 p-1 rounded-xl border border-gray-800 flex items-center text-xs font-bold">
                 <button id="btnDailyMode" onclick="switchGameMode('daily')" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md">
@@ -185,10 +190,9 @@
         Copied to clipboard! 📋
     </div>
 
-    <!-- Main Game Section (Grid scrolls internally without extending past footer) -->
+    <!-- Main Game Section -->
     <main class="w-full flex-1 flex flex-col items-center justify-between min-h-0 py-1 gap-1 overflow-hidden">
         
-        <!-- Free Play Custom Input Box -->
         <div id="freeControls" class="hidden w-full max-w-md bg-gray-900/90 border border-gray-800 rounded-xl p-2 flex flex-col gap-1.5 shadow-md shrink-0">
             <div class="flex items-center justify-between text-xs font-bold text-gray-300">
                 <span class="flex items-center gap-1">🎛️ Grid Settings</span>
@@ -206,7 +210,6 @@
             </div>
         </div>
 
-        <!-- Status / Indicator Bar -->
         <div class="flex items-center justify-between w-full max-w-3xl px-2 text-xs font-semibold shrink-0">
             <span id="modeIndicator" class="text-amber-400 font-bold flex items-center gap-1">
                 📅 Daily Challenge
@@ -219,22 +222,17 @@
             </span>
         </div>
 
-        <!-- Board Viewport Container -->
         <div id="boardViewport" class="w-full flex-1 flex min-h-0 overflow-auto p-2" style="justify-content: safe center; align-items: safe center;">
             <div id="gridContainer" class="bg-gray-900/60 rounded-2xl border border-gray-800 shadow-2xl relative my-auto">
-                <!-- Virtualized Grid Cells appended dynamically -->
             </div>
         </div>
     </main>
 
-    <!-- Controls & Keypad Footer (ALWAYS pinned strictly at bottom) -->
+    <!-- Controls -->
     <footer class="w-full flex flex-col gap-1.5 p-2 bg-gray-900/90 rounded-2xl border border-gray-800 shadow-xl backdrop-blur-md shrink-0">
-        <!-- Eeveelution Selector Buttons -->
         <div id="selectorButtons" class="grid grid-cols-9 gap-1 sm:gap-1.5">
-            <!-- Dynamically populated -->
         </div>
 
-        <!-- Row Controls (Backspace, Submit) -->
         <div class="flex items-center justify-between gap-2">
             <button onclick="handleBackspace()" class="flex-1 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 active:scale-95 transition font-bold text-gray-200 text-xs flex items-center justify-center gap-1 border border-gray-700">
                 <svg class="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V6a2 2 0 00-2-2H10.828a2 2 0 00-1.414.586L3 12z"></path></svg>
@@ -435,11 +433,10 @@
         let submittedGuesses = [];
         let isGameOver = false;
 
-        // --- Virtualization Metrics ---
-        const CELL_WIDTH = 58;  // Cell size + gap
-        const CELL_HEIGHT = 78; // Cell size + gap
-        const BUFFER_SIZE = 3;  // Render buffer offscreen
-        let newlyAddedCellIdx = -1; // Track active input cell index for animation
+        const CELL_WIDTH = 58;
+        const CELL_HEIGHT = 78;
+        const BUFFER_SIZE = 3;
+        let newlyAddedCellIdx = -1;
 
         window.onload = function() {
             initKeyboard();
@@ -634,7 +631,6 @@
             localStorage.setItem(`eeveedle_daily_${todayStr}`, JSON.stringify(data));
         }
 
-        // --- Board Virtualization Logic ---
         function initBoard() {
             const container = document.getElementById('gridContainer');
             container.innerHTML = '';
@@ -666,19 +662,102 @@
             const endCol = Math.min(currentSequenceLength - 1, Math.ceil((scrollLeft + viewportWidth) / CELL_WIDTH) + BUFFER_SIZE);
 
             const container = document.getElementById('gridContainer');
-            container.innerHTML = ''; 
-
+            
+            const activeKeys = new Set();
             const fragment = document.createDocumentFragment();
 
             for (let r = startRow; r <= endRow; r++) {
                 for (let c = startCol; c <= endCol; c++) {
-                    fragment.appendChild(createVirtualCell(r, c));
+                    const cellId = `cell-${r}-${c}`;
+                    activeKeys.add(cellId);
+
+                    let cellEl = document.getElementById(cellId);
+                    if (!cellEl) {
+                        cellEl = createVirtualCell(r, c);
+                        fragment.appendChild(cellEl);
+                    } else {
+                        updateVirtualCell(cellEl, r, c);
+                    }
                 }
             }
-            container.appendChild(fragment);
-            
-            // Clear pop trigger tracker after single render cycle
+
+            if (fragment.children.length > 0) {
+                container.appendChild(fragment);
+            }
+
+            const existingCells = Array.from(container.children);
+            existingCells.forEach(cell => {
+                if (!activeKeys.has(cell.id)) {
+                    cell.remove();
+                }
+            });
+
             newlyAddedCellIdx = -1;
+        }
+
+        function updateVirtualCell(cellEl, r, c) {
+            const isSubmitted = r < submittedGuesses.length;
+            const isCurrentRow = r === currentAttempt;
+
+            const inner = cellEl.querySelector('.flip-inner');
+            const front = cellEl.querySelector('.flip-front');
+            const back = cellEl.querySelector('.flip-back');
+
+            if (!inner || !front || !back) return;
+
+            if (isSubmitted) {
+                const guess = submittedGuesses[r];
+                const eevee = EEVEELUTIONS.find(e => e.id === guess[c]);
+                const evalResult = getGuessEvaluation(guess)[c];
+                
+                let backBg = 'bg-gray-800 border-gray-700 opacity-90';
+                if (evalResult === 'GREEN') {
+                    backBg = 'bg-emerald-600 border-emerald-400 text-white shadow-lg';
+                } else if (evalResult === 'YELLOW') {
+                    backBg = 'bg-amber-500 border-amber-300 text-white shadow-lg';
+                } else if (evalResult === 'GRAY') {
+                    backBg = 'bg-gray-700 border-gray-600 text-gray-300';
+                }
+
+                let backContent = '';
+                if (eevee) {
+                    backContent = `
+                        <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
+                            ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
+                            <span class="auto-fit-text font-black text-center w-full shrink-0 drop-shadow">${eevee.name}</span>
+                        </div>
+                    `;
+                }
+
+                back.className = `flip-back tile-container absolute inset-0 rounded-xl flex flex-col items-center justify-between border-2 p-0.5 sm:p-1 overflow-hidden ${backBg}`;
+                back.innerHTML = backContent;
+
+                if (!inner.classList.contains('flipped')) {
+                    inner.classList.add('flipped');
+                }
+            } else {
+                inner.classList.remove('flipped');
+                
+                let frontContent = '';
+                if (isCurrentRow && c < currentGuess.length) {
+                    const eevee = EEVEELUTIONS.find(e => e.id === currentGuess[c]);
+                    if (eevee) {
+                        frontContent = `
+                            <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
+                                ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
+                                <span class="auto-fit-text font-black text-center w-full shrink-0" style="color: ${eevee.color}">${eevee.name}</span>
+                            </div>
+                        `;
+                    }
+                }
+                front.innerHTML = frontContent;
+
+                const shouldPop = (isCurrentRow && c === newlyAddedCellIdx);
+                const frontBorder = (isCurrentRow && c < currentGuess.length) 
+                    ? `border-amber-400 bg-gray-800 ${shouldPop ? 'tile-pop' : ''}` 
+                    : 'border-gray-800 bg-gray-900/90';
+                front.className = `flip-front tile-container absolute inset-0 rounded-xl border-2 ${frontBorder} flex flex-col items-center justify-between p-0.5 sm:p-1 overflow-hidden`;
+            }
         }
 
         function createVirtualCell(r, c) {
@@ -688,58 +767,14 @@
             cellEl.style.left = `${c * CELL_WIDTH}px`;
             cellEl.style.top = `${r * CELL_HEIGHT}px`;
 
-            const isSubmitted = r < submittedGuesses.length;
-            const isCurrentRow = r === currentAttempt;
-
-            let frontContent = '';
-            let backContent = '';
-            let flippedClass = '';
-            let backBg = 'bg-gray-800 border-gray-700 opacity-80';
-
-            if (isSubmitted) {
-                const guess = submittedGuesses[r];
-                const eevee = EEVEELUTIONS.find(e => e.id === guess[c]);
-                const evalResult = getGuessEvaluation(guess)[c];
-                
-                if (evalResult === 'GREEN') backBg = 'bg-gradient-to-b from-emerald-500 to-emerald-700 border-emerald-300 shadow-lg';
-                if (evalResult === 'YELLOW') backBg = 'bg-gradient-to-b from-amber-500 to-amber-700 border-amber-300 shadow-lg';
-
-                if (eevee) {
-                    backContent = `
-                        <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
-                            ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
-                            <span class="auto-fit-text font-black text-center w-full shrink-0 drop-shadow">${eevee.name}</span>
-                        </div>
-                    `;
-                }
-                flippedClass = 'flipped';
-            } else if (isCurrentRow && c < currentGuess.length) {
-                const eevee = EEVEELUTIONS.find(e => e.id === currentGuess[c]);
-                if (eevee) {
-                    frontContent = `
-                        <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
-                            ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
-                            <span class="auto-fit-text font-black text-center w-full shrink-0" style="color: ${eevee.color}">${eevee.name}</span>
-                        </div>
-                    `;
-                }
-            }
-
-            const shouldPop = (isCurrentRow && c === newlyAddedCellIdx);
-            const frontBorder = (isCurrentRow && c < currentGuess.length) 
-                ? `border-amber-400 bg-gray-800 ${shouldPop ? 'tile-pop' : ''}` 
-                : 'border-gray-800 bg-gray-900/90';
-
             cellEl.innerHTML = `
-                <div class="flip-inner w-full h-full relative ${flippedClass}">
-                    <div class="flip-front tile-container absolute inset-0 rounded-xl border-2 ${frontBorder} flex flex-col items-center justify-between p-0.5 sm:p-1 overflow-hidden">
-                        ${frontContent}
-                    </div>
-                    <div class="flip-back tile-container absolute inset-0 rounded-xl flex flex-col items-center justify-between ${backBg} border-2 p-0.5 sm:p-1 overflow-hidden">
-                        ${backContent}
-                    </div>
+                <div class="flip-inner">
+                    <div class="flip-front tile-container"></div>
+                    <div class="flip-back tile-container"></div>
                 </div>
             `;
+
+            updateVirtualCell(cellEl, r, c);
 
             return cellEl;
         }
@@ -808,9 +843,14 @@
             playSound('flip');
 
             const isWin = getGuessEvaluation(guessToSubmit).every(res => res === 'GREEN');
+            
+            // Advance attempt counter & reset active guess buffer
+            currentAttempt++;
+            currentGuess = [];
+
             renderVirtualGrid();
 
-            if (isWin || currentAttempt >= currentMaxAttempts - 1) {
+            if (isWin || currentAttempt >= currentMaxAttempts) {
                 isGameOver = true;
                 saveDailyState(isWin);
                 
@@ -828,14 +868,8 @@
                     showEndModal(isWin);
                 }, currentSequenceLength * 20 + 200);
             } else {
-                currentAttempt++;
-                currentGuess = [];
                 saveDailyState(false);
                 document.getElementById('attemptIndicator').textContent = `Attempt ${currentAttempt + 1}/${currentMaxAttempts}`;
-                
-                // Auto-scroll viewport to active row
-                const viewport = document.getElementById('boardViewport');
-                viewport.scrollTo({ top: currentAttempt * CELL_HEIGHT, behavior: 'smooth' });
                 renderVirtualGrid();
             }
         }

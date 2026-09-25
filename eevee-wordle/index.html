@@ -162,15 +162,20 @@
             </h1>
         </div>
 
+        <!-- Primary Top Tabs -->
         <div class="flex items-center gap-1.5 flex-wrap justify-end">
-            <div class="bg-gray-900 p-1 rounded-xl border border-gray-800 flex items-center text-xs font-bold">
-                <button id="btnDailyMode" onclick="switchGameMode('daily')" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md">
+            <div class="bg-gray-900 p-1 rounded-xl border border-gray-800 flex items-center text-xs font-bold gap-1">
+                <button id="tabDaily" onclick="setPrimaryTab('daily')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md">
                     <span>📅</span>
-                    <span class="hidden xs:inline">Daily</span>
+                    <span>Daily</span>
                 </button>
-                <button id="btnFreeMode" onclick="switchGameMode('free')" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white">
+                <button id="tabNormal" onclick="setPrimaryTab('normal')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white">
+                    <span>🎯</span>
+                    <span>Normal</span>
+                </button>
+                <button id="tabFreePlay" onclick="setPrimaryTab('freeplay')" class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white">
                     <span>♾️</span>
-                    <span class="hidden xs:inline">Free Play</span>
+                    <span>Free Play</span>
                 </button>
             </div>
 
@@ -178,7 +183,7 @@
                 <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span class="hidden sm:inline">Rules</span>
             </button>
-            <button id="btnNewGame" onclick="resetFreeGame()" class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition text-xs font-semibold flex items-center gap-1 shadow-md hidden">
+            <button id="btnNewGame" onclick="resetGame()" class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition text-xs font-semibold flex items-center gap-1 shadow-md hidden">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 <span class="hidden xs:inline">New Game</span>
             </button>
@@ -193,9 +198,21 @@
     <!-- Main Game Section -->
     <main class="w-full flex-1 flex flex-col items-center justify-between min-h-0 py-1 gap-1 overflow-hidden">
         
+        <!-- Normal Mode Difficulty Selector Sub-Bar -->
+        <div id="normalDifficultyBar" class="hidden w-full max-w-md bg-gray-900/90 border border-gray-800 rounded-xl p-1.5 flex items-center justify-between gap-1 shadow-md shrink-0 text-xs">
+            <span class="text-gray-400 font-bold px-1 text-[11px] uppercase tracking-wider">Difficulty:</span>
+            <div class="flex items-center gap-1 font-bold">
+                <button id="diffEasy" onclick="setNormalDifficulty('easy')" class="px-2 py-1 rounded-lg transition text-gray-400 hover:text-white">Easy</button>
+                <button id="diffStandard" onclick="setNormalDifficulty('standard')" class="px-2 py-1 rounded-lg transition bg-amber-500 text-gray-950 shadow">Standard</button>
+                <button id="diffHard" onclick="setNormalDifficulty('hard')" class="px-2 py-1 rounded-lg transition text-gray-400 hover:text-white">Hard</button>
+                <button id="diffInsane" onclick="setNormalDifficulty('insane')" class="px-2 py-1 rounded-lg transition text-gray-400 hover:text-white">Insane</button>
+            </div>
+        </div>
+
+        <!-- Custom Mode Settings (Free Play) -->
         <div id="freeControls" class="hidden w-full max-w-md bg-gray-900/90 border border-gray-800 rounded-xl p-2 flex flex-col gap-1.5 shadow-md shrink-0">
             <div class="flex items-center justify-between text-xs font-bold text-gray-300">
-                <span class="flex items-center gap-1">🎛️ Grid Settings</span>
+                <span class="flex items-center gap-1">🎛️ Custom Board Controls</span>
                 <span id="gridDimensionsLabel" class="text-amber-400 font-mono text-xs">9 Cols × 7 Rows</span>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
@@ -293,6 +310,10 @@
     <!-- Game End Modal -->
     <div id="gameEndModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-lg w-full p-4 sm:p-5 text-center shadow-2xl relative">
+            <button onclick="closeModal('gameEndModal')" class="absolute top-3 right-3 text-gray-400 hover:text-white p-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
             <div id="endEmoji" class="text-3xl sm:text-4xl mb-1">🎉</div>
             <h2 id="endTitle" class="text-xl sm:text-2xl font-black text-white mb-1">VICTORY!</h2>
             <p id="endSubtitle" class="text-xs sm:text-sm text-gray-400 mb-2">You guessed the secret sequence!</p>
@@ -318,14 +339,93 @@
                     <span>Share Result</span>
                 </button>
 
-                <button id="modalActionBtn" onclick="handleModalAction()" class="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-900 font-extrabold transition shadow-lg text-xs sm:text-sm uppercase tracking-wider">
-                    Play Free Play Mode
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="closeModal('gameEndModal')" class="flex-1 py-2.5 sm:py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold transition text-xs sm:text-sm uppercase tracking-wider border border-gray-700">
+                        View Board
+                    </button>
+                    <button id="modalActionBtn" onclick="handleModalAction()" class="flex-1 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-gray-900 font-extrabold transition shadow-lg text-xs sm:text-sm uppercase tracking-wider">
+                        Play Normal Mode
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // --- Custom Light VDOM Engine Integration ---
+        const VDOM = {
+            createElement: function(tag, props, ...children) {
+                return { tag, props: props || {}, children: children.flat() };
+            },
+            renderNode: function(vnode) {
+                if (typeof vnode === 'string' || typeof vnode === 'number') {
+                    return document.createTextNode(vnode);
+                }
+                const el = document.createElement(vnode.tag);
+                if (vnode.props) {
+                    Object.entries(vnode.props).forEach(([key, val]) => {
+                        if (key.startsWith('on') && typeof val === 'function') {
+                            el.addEventListener(key.substring(2).toLowerCase(), val);
+                        } else if (key === 'className') {
+                            el.className = val;
+                        } else if (key === 'style' && typeof val === 'object') {
+                            Object.assign(el.style, val);
+                        } else {
+                            el.setAttribute(key, val);
+                        }
+                    });
+                }
+                vnode.children.forEach(child => {
+                    if (child !== null && child !== undefined) {
+                        el.appendChild(VDOM.renderNode(child));
+                    }
+                });
+                return el;
+            },
+            reconcile: function(parent, oldVNode, newVNode, index = 0) {
+                if (!oldVNode) {
+                    parent.appendChild(VDOM.renderNode(newVNode));
+                } else if (!newVNode) {
+                    if (parent.childNodes[index]) {
+                        parent.removeChild(parent.childNodes[index]);
+                    }
+                } else if (typeof oldVNode !== typeof newVNode || 
+                          (typeof oldVNode === 'string' && oldVNode !== newVNode) || 
+                          oldVNode.tag !== newVNode.tag) {
+                    if (parent.childNodes[index]) {
+                        parent.replaceChild(VDOM.renderNode(newVNode), parent.childNodes[index]);
+                    }
+                } else if (newVNode.tag) {
+                    const el = parent.childNodes[index];
+                    if (el) {
+                        // Reconcile props
+                        const oldProps = oldVNode.props || {};
+                        const newProps = newVNode.props || {};
+                        Object.keys({ ...oldProps, ...newProps }).forEach(key => {
+                            if (oldProps[key] !== newProps[key]) {
+                                if (key === 'className') {
+                                    el.className = newProps[key] || '';
+                                } else if (key === 'style' && typeof newProps[key] === 'object') {
+                                    Object.assign(el.style, newProps[key]);
+                                } else if (!key.startsWith('on')) {
+                                    if (newProps[key] !== undefined) {
+                                        el.setAttribute(key, newProps[key]);
+                                    } else {
+                                        el.removeAttribute(key);
+                                    }
+                                }
+                            }
+                        });
+                        // Reconcile children
+                        const maxLen = Math.max(oldVNode.children.length, newVNode.children.length);
+                        for (let i = 0; i < maxLen; i++) {
+                            VDOM.reconcile(el, oldVNode.children[i], newVNode.children[i], i);
+                        }
+                    }
+                }
+            }
+        };
+
         const EEVEELUTIONS = [
             { id: 'eevee', name: 'Eevee', type: 'Normal', color: '#a4734f', bg: 'bg-amber-800', border: 'border-amber-600', icon: '🤎', key: '1', image: 'images/eevee.webp', sound: 'sounds/eevee.ogg' },
             { id: 'vaporeon', name: 'Vaporeon', type: 'Water', color: '#2980b9', bg: 'bg-blue-600', border: 'border-blue-400', icon: '💧', key: '2', image: 'images/vaporeon.webp', sound: 'sounds/vaporeon.ogg' },
@@ -355,13 +455,11 @@
 
         function preloadAllAudio() {
             Object.values(SOUNDS).forEach(a => a.load());
-            
             WIN_SOUNDS.forEach(src => {
                 const audio = new Audio(src);
                 audio.load();
                 preloadedAudioMap[src] = audio;
             });
-
             EEVEELUTIONS.forEach(e => {
                 if (e.sound) {
                     const cry = new Audio(e.sound);
@@ -421,12 +519,14 @@
         const DAILY_ATTEMPTS = 7;
         const DAILY_SEQUENCE_LENGTH = 9;
 
+        let activeTab = 'daily'; // 'daily', 'normal', 'freeplay'
+        let normalDifficulty = 'standard'; // 'easy', 'standard', 'hard', 'insane'
+
         let currentMaxAttempts = DAILY_ATTEMPTS;
         let currentSequenceLength = DAILY_SEQUENCE_LENGTH;
         let freeMaxAttempts = 7;
         let freeSequenceLength = 9;
 
-        let gameMode = 'daily';
         let secretSequence = [];
         let currentAttempt = 0;
         let currentGuess = [];
@@ -440,7 +540,7 @@
 
         window.onload = function() {
             initKeyboard();
-            switchGameMode('daily');
+            parseUrlParameters();
             startCountdownTimer();
 
             const viewport = document.getElementById('boardViewport');
@@ -475,6 +575,161 @@
                 }
             });
         };
+
+        function parseUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            const rows = parseInt(urlParams.get('rows') || urlParams.get('row'));
+            const cols = parseInt(urlParams.get('cols') || urlParams.get('col') || urlParams.get('columns') || urlParams.get('colums'));
+
+            if (mode === 'easy') {
+                setPrimaryTab('normal');
+                setNormalDifficulty('easy');
+            } else if (mode === 'normal' || mode === 'standard') {
+                setPrimaryTab('normal');
+                setNormalDifficulty('standard');
+            } else if (mode === 'hard') {
+                setPrimaryTab('normal');
+                setNormalDifficulty('hard');
+            } else if (mode === 'insane') {
+                setPrimaryTab('normal');
+                setNormalDifficulty('insane');
+            } else if (mode === 'custom' || mode === 'free') {
+                const customRows = !isNaN(rows) && rows > 0 ? rows : 7;
+                const customCols = !isNaN(cols) && cols > 0 ? cols : 9;
+                
+                document.getElementById('colInput').value = customCols;
+                document.getElementById('rowInput').value = customRows;
+                freeSequenceLength = customCols;
+                freeMaxAttempts = customRows;
+                
+                setPrimaryTab('freeplay');
+            } else {
+                setPrimaryTab('daily');
+            }
+        }
+
+        function updateUrlQuery() {
+            const url = new URL(window.location.href);
+            url.search = '';
+
+            if (activeTab === 'normal') {
+                if (normalDifficulty !== 'standard') {
+                    url.searchParams.set('mode', normalDifficulty);
+                } else {
+                    url.searchParams.set('mode', 'normal');
+                }
+            } else if (activeTab === 'freeplay') {
+                url.searchParams.set('mode', 'custom');
+                url.searchParams.set('rows', freeMaxAttempts);
+                url.searchParams.set('cols', freeSequenceLength);
+            }
+
+            window.history.replaceState({}, '', url.toString());
+        }
+
+        function setPrimaryTab(tab) {
+            activeTab = tab;
+
+            const tabDaily = document.getElementById('tabDaily');
+            const tabNormal = document.getElementById('tabNormal');
+            const tabFreePlay = document.getElementById('tabFreePlay');
+            
+            const normalDifficultyBar = document.getElementById('normalDifficultyBar');
+            const freeControls = document.getElementById('freeControls');
+            const countdownContainer = document.getElementById('countdownContainer');
+            const btnNewGame = document.getElementById('btnNewGame');
+
+            const unselectedClass = "px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white";
+            const selectedClass = "px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md";
+
+            tabDaily.className = unselectedClass;
+            tabNormal.className = unselectedClass;
+            tabFreePlay.className = unselectedClass;
+
+            if (tab === 'daily') {
+                tabDaily.className = selectedClass;
+                normalDifficultyBar.classList.add('hidden');
+                freeControls.classList.add('hidden');
+                countdownContainer.classList.remove('hidden');
+                btnNewGame.classList.add('hidden');
+
+                document.getElementById('modeIndicator').innerHTML = '📅 Daily Challenge';
+                currentMaxAttempts = DAILY_ATTEMPTS;
+                currentSequenceLength = DAILY_SEQUENCE_LENGTH;
+                
+                updateUrlQuery();
+                loadDailyGame();
+            } else if (tab === 'normal') {
+                tabNormal.className = selectedClass;
+                normalDifficultyBar.classList.remove('hidden');
+                freeControls.classList.add('hidden');
+                countdownContainer.classList.add('hidden');
+                btnNewGame.classList.remove('hidden');
+
+                // Force reset to standard difficulty when switching to normal tab
+                setNormalDifficulty('standard', true);
+            } else if (tab === 'freeplay') {
+                tabFreePlay.className = selectedClass;
+                normalDifficultyBar.classList.add('hidden');
+                freeControls.classList.remove('hidden');
+                countdownContainer.classList.add('hidden');
+                btnNewGame.classList.remove('hidden');
+
+                document.getElementById('modeIndicator').innerHTML = '♾️ Free Play (Custom)';
+                currentMaxAttempts = freeMaxAttempts;
+                currentSequenceLength = freeSequenceLength;
+
+                updateUrlQuery();
+                resetGame();
+            }
+        }
+
+        function setNormalDifficulty(diff, triggerReset = true) {
+            normalDifficulty = diff;
+
+            const diffEasy = document.getElementById('diffEasy');
+            const diffStandard = document.getElementById('diffStandard');
+            const diffHard = document.getElementById('diffHard');
+            const diffInsane = document.getElementById('diffInsane');
+
+            const unselected = "px-2 py-1 rounded-lg transition text-gray-400 hover:text-white";
+            const selected = "px-2 py-1 rounded-lg transition bg-amber-500 text-gray-950 shadow";
+
+            diffEasy.className = unselected;
+            diffStandard.className = unselected;
+            diffHard.className = unselected;
+            diffInsane.className = unselected;
+
+            const modeInd = document.getElementById('modeIndicator');
+
+            if (diff === 'easy') {
+                diffEasy.className = selected;
+                currentSequenceLength = 6;
+                currentMaxAttempts = 8;
+                modeInd.innerHTML = '🥹 Normal - Easy Mode (6 Cols × 8 Rows)';
+            } else if (diff === 'standard') {
+                diffStandard.className = selected;
+                currentSequenceLength = 9;
+                currentMaxAttempts = 7;
+                modeInd.innerHTML = '🔥 Normal Mode (9 Cols × 7 Rows)';
+            } else if (diff === 'hard') {
+                diffHard.className = selected;
+                currentSequenceLength = 10;
+                currentMaxAttempts = 5;
+                modeInd.innerHTML = '👀 Normal - Hard Mode (10 Cols × 5 Rows)';
+            } else if (diff === 'insane') {
+                diffInsane.className = selected;
+                currentSequenceLength = 12;
+                currentMaxAttempts = 4;
+                modeInd.innerHTML = '😼 Normal - Insane Mode (12 Cols × 4 Rows)';
+            }
+
+            updateUrlQuery();
+            if (triggerReset) {
+                resetGame();
+            }
+        }
 
         function getLocalDateString() {
             const d = new Date();
@@ -523,55 +778,11 @@
             freeSequenceLength = colVal;
             freeMaxAttempts = rowVal;
 
-            if (gameMode === 'free') {
+            if (activeTab === 'freeplay') {
                 currentSequenceLength = freeSequenceLength;
                 currentMaxAttempts = freeMaxAttempts;
-                resetFreeGame();
-            }
-        }
-
-        function switchGameMode(mode) {
-            gameMode = mode;
-
-            const btnDaily = document.getElementById('btnDailyMode');
-            const btnFree = document.getElementById('btnFreeMode');
-            const modeInd = document.getElementById('modeIndicator');
-            const countdownContainer = document.getElementById('countdownContainer');
-            const btnNewGame = document.getElementById('btnNewGame');
-            const freeControls = document.getElementById('freeControls');
-
-            if (mode === 'daily') {
-                currentMaxAttempts = DAILY_ATTEMPTS;
-                currentSequenceLength = DAILY_SEQUENCE_LENGTH;
-                btnDaily.className = "px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md";
-                btnFree.className = "px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white";
-                modeInd.innerHTML = '📅 Daily Challenge';
-                countdownContainer.classList.remove('hidden');
-                btnNewGame.classList.add('hidden');
-                freeControls.classList.add('hidden');
-                loadDailyGame();
-            } else {
-                freeSequenceLength = 9;
-                freeMaxAttempts = 7;
-
-                const colInput = document.getElementById('colInput');
-                const rowInput = document.getElementById('rowInput');
-                if (colInput) colInput.value = 9;
-                if (rowInput) rowInput.value = 7;
-                
-                const dimensionsLabel = document.getElementById('gridDimensionsLabel');
-                if (dimensionsLabel) dimensionsLabel.textContent = "9 Cols × 7 Rows";
-
-                currentMaxAttempts = freeMaxAttempts;
-                currentSequenceLength = freeSequenceLength;
-
-                btnFree.className = "px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg transition-all flex items-center gap-1 bg-amber-500 text-gray-950 shadow-md";
-                btnDaily.className = "px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg transition-all flex items-center gap-1 text-gray-400 hover:text-white";
-                modeInd.innerHTML = '♾️ Free Play Mode';
-                countdownContainer.classList.add('hidden');
-                btnNewGame.classList.remove('hidden');
-                freeControls.classList.remove('hidden');
-                resetFreeGame();
+                updateUrlQuery();
+                resetGame();
             }
         }
 
@@ -585,6 +796,8 @@
             submittedGuesses = [];
             isGameOver = false;
 
+            let isWinState = false;
+
             if (savedData) {
                 try {
                     const parsed = JSON.parse(savedData);
@@ -593,7 +806,7 @@
 
                     if (parsed.isGameOver) {
                         isGameOver = true;
-                        setTimeout(() => showEndModal(parsed.isWin), 300);
+                        isWinState = parsed.isWin;
                     }
                 } catch(e) {
                     console.error("Failed to parse daily state", e);
@@ -602,9 +815,14 @@
 
             initBoard();
             document.getElementById('attemptIndicator').textContent = `Attempt ${Math.min(currentAttempt + 1, currentMaxAttempts)}/${currentMaxAttempts}`;
+
+            // Re-open completion modal whenever user switches back to daily tab if game was already finished
+            if (isGameOver) {
+                setTimeout(() => showEndModal(isWinState), 200);
+            }
         }
 
-        function resetFreeGame() {
+        function resetGame() {
             secretSequence = [];
             for (let i = 0; i < currentSequenceLength; i++) {
                 const randIndex = Math.floor(Math.random() * EEVEELUTIONS.length);
@@ -621,7 +839,7 @@
         }
 
         function saveDailyState(isWin) {
-            if (gameMode !== 'daily') return;
+            if (activeTab !== 'daily') return;
             const todayStr = getLocalDateString();
             const data = {
                 guesses: submittedGuesses,
@@ -844,7 +1062,6 @@
 
             const isWin = getGuessEvaluation(guessToSubmit).every(res => res === 'GREEN');
             
-            // Advance attempt counter & reset active guess buffer
             currentAttempt++;
             currentGuess = [];
 
@@ -907,9 +1124,14 @@
             const scoreStr = `${submittedGuesses.length}/${currentMaxAttempts}`;
             const gridDimensionsStr = `${currentSequenceLength}x${currentMaxAttempts}`;
 
-            const headerStr = gameMode === 'daily' 
-                ? `🗓️ Eevee-dle ${todayStr} (${scoreStr})` 
-                : `🎮 Eevee-dle Free Play [${gridDimensionsStr}] (${scoreStr})`;
+            let headerStr = `🎮 Eevee-dle [${gridDimensionsStr}] (${scoreStr})`;
+            if (activeTab === 'daily') {
+                headerStr = `🗓️ Eevee-dle Daily ${todayStr} (${scoreStr})`;
+            } else if (activeTab === 'normal') {
+                headerStr = `🎯 Eevee-dle Normal [${normalDifficulty.toUpperCase()}] (${scoreStr})`;
+            } else if (activeTab === 'freeplay') {
+                headerStr = `♾️ Eevee-dle Free Play [${gridDimensionsStr}] (${scoreStr})`;
+            }
 
             const gridLines = submittedGuesses.map(guess => {
                 const evalArr = getGuessEvaluation(guess);
@@ -920,7 +1142,12 @@
                 }).join('');
             }).join('\n');
 
-            const shareUrl = "https://feesh.run.place/eevee-wordle/";
+            let shareUrl = "https://feesh.run.place/eevee-wordle/";
+            if (activeTab === 'normal') {
+                shareUrl = `https://feesh.run.place/eevee-wordle/?mode=${normalDifficulty}`;
+            } else if (activeTab === 'freeplay') {
+                shareUrl = `https://feesh.run.place/eevee-wordle/?mode=custom&rows=${currentMaxAttempts}&cols=${currentSequenceLength}`;
+            }
 
             return `${headerStr}\n${gridLines}\n\n${shareUrl}`;
         }
@@ -973,7 +1200,7 @@
                 emoji.textContent = '🎉';
                 title.textContent = 'VICTORY!';
                 title.className = 'text-xl sm:text-2xl font-black text-emerald-400 mb-1';
-                subtitle.textContent = gameMode === 'daily' ? "You solved today's Daily sequence!" : 'You solved the Free Play sequence!';
+                subtitle.textContent = activeTab === 'daily' ? "You solved today's Daily sequence!" : 'You solved the sequence!';
             } else {
                 emoji.textContent = '💔';
                 title.textContent = 'GAME OVER';
@@ -982,14 +1209,14 @@
             }
 
             attemptsBox.textContent = `${submittedGuesses.length}/${currentMaxAttempts}`;
-            modeBox.textContent = gameMode === 'daily' ? 'Daily' : `Free Play (${currentSequenceLength}x${currentMaxAttempts})`;
+            modeBox.textContent = activeTab === 'daily' ? 'DAILY CHALLENGE' : `${activeTab.toUpperCase()} (${normalDifficulty.toUpperCase()})`;
 
-            if (gameMode === 'daily') {
+            if (activeTab === 'daily') {
                 modalTimerContainer.classList.remove('hidden');
-                actionBtn.textContent = 'Play Free Play Mode';
+                actionBtn.textContent = 'Play Normal Mode';
             } else {
                 modalTimerContainer.classList.add('hidden');
-                actionBtn.textContent = 'Play Another Free Game';
+                actionBtn.textContent = 'Play Again';
             }
 
             solutionBox.innerHTML = '';
@@ -1011,10 +1238,10 @@
 
         function handleModalAction() {
             closeModal('gameEndModal');
-            if (gameMode === 'daily') {
-                switchGameMode('free');
+            if (activeTab === 'daily') {
+                setPrimaryTab('normal');
             } else {
-                resetFreeGame();
+                resetGame();
             }
         }
 

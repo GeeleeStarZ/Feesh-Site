@@ -13,7 +13,7 @@
     <meta property="og:description" content="Welcome to the aquarium! Check out my gallery and collection." />
     <meta property="og:url" content="https://feesh.run.place/" />
     <meta property="og:image" content="https://feesh.run.place/feesh_gallery/feesh1.jpg" />
-    <meta name="theme-color" content="#4a90e2" /> <!-- Custom sidebar accent color (Hex code) -->
+    <meta name="theme-color" content="#4a90e2" />
     
     <!-- Optional: Large Image Banner Style -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -31,7 +31,6 @@
         /* Responsive Grid Layout */
         .gallery {
             display: grid;
-            /* Creates columns that automatically fit the screen size */
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 16px;
             max-width: 1000px;
@@ -41,7 +40,7 @@
         /* Individual Image Cards */
         .gallery img {
             width: 100%;
-            height: auto; /* Scales height naturally with width */
+            height: auto;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -60,16 +59,38 @@
     <h1>Vappy Gallery</h1>
     <p>Check out some of my favorite images!</p>
 
-    <!-- The Gallery Grid -->
-    <div class="gallery">
-        <img src="feesh_gallery/feesh1.jpg" alt="Me when I try to socialize">
-        <img src="feesh_gallery/feesh2.png" alt="Dont let the fish drive">
-        <img src="feesh_gallery/feesh3.png" alt="He tried his best">
-        <img src="feesh_gallery/feesh4.png" alt="Playing with toy">
-        <img src="feesh_gallery/feesh5.jpg" alt="Alien">
-        <img src="feesh_gallery/feesh6.jpg" alt="Dumpling">
-        <img src="feesh_gallery/feesh7.png" alt="Cardboard Fish">
-    </div>
+    <!-- The Gallery Grid Container -->
+    <div class="gallery" id="galleryContainer"></div>
+
+    <script>
+        // Array containing all image metadata
+        const galleryImages = [
+            { src: 'feesh_gallery/feesh1.jpg', alt: 'Me when I try to socialize' },
+            { src: 'feesh_gallery/feesh2.png', alt: 'Dont let the fish drive' },
+            { src: 'feesh_gallery/feesh3.png', alt: 'He tried his best' },
+            { src: 'feesh_gallery/feesh4.png', alt: 'Playing with toy' },
+            { src: 'feesh_gallery/feesh5.jpg', alt: 'Alien' },
+            { src: 'feesh_gallery/feesh6.jpg', alt: 'Dumpling' },
+            { src: 'feesh_gallery/feesh7.png', alt: 'Cardboard Fish' },
+            { src: 'feesh_gallery/feesh8.jpg', alt: 'Keyboard spam' },
+            { src: 'feesh_gallery/feesh9.jpg', alt: 'Statement' },
+            { src: 'feesh_gallery/feesh10.jpg', alt: 'Silly :3' },
+            { src: 'feesh_gallery/feesh11.jpg', alt: 'Awww' },
+            { src: 'feesh_gallery/feesh12.png', alt: 'Vaporeon Taco' },
+             { src: 'feesh_gallery/feesh13.png', alt: 'He Fried' }
+        ];
+
+        const container = document.getElementById('galleryContainer');
+
+        // Loop through the list and generate <img> tags dynamically
+        galleryImages.forEach(imageData => {
+            const img = document.createElement('img');
+            img.src = imageData.src;
+            img.alt = imageData.alt;
+            img.loading = 'lazy'; // Optimizes performance for image loading
+            container.appendChild(img);
+        });
+    </script>
 
 </body>
 </html>

@@ -59,8 +59,9 @@
         }
 
         .flip-inner {
-            transition: transform 0.4s ease-out;
+            transition: transform 0.35s ease-out;
             transform-style: preserve-3d;
+            will-change: transform;
         }
 
         .flipped .flip-inner {
@@ -215,10 +216,10 @@
             </span>
         </div>
 
-        <!-- Board Viewport Container (Uses safe center for smart dynamic alignment) -->
+        <!-- Board Viewport Container -->
         <div id="boardViewport" class="w-full flex-1 flex min-h-0 overflow-auto p-2" style="justify-content: safe center; align-items: safe center;">
-            <div id="gridContainer" class="flex flex-col justify-center gap-1 sm:gap-1.5 p-2 sm:p-3 bg-gray-900/60 rounded-2xl border border-gray-800 shadow-2xl backdrop-blur-md w-max my-auto">
-                <!-- Grid rows generated programmatically -->
+            <div id="gridContainer" class="bg-gray-900/60 rounded-2xl border border-gray-800 shadow-2xl relative my-auto">
+                <!-- Virtualized Grid Cells appended dynamically -->
             </div>
         </div>
     </main>
@@ -380,32 +381,32 @@
 
         function playSound(key) {
             try {
-                const baseAudio = SOUNDS[key] || new Audio(`sounds/${key}.mp3`);
-                const clone = baseAudio.cloneNode();
-                clone.play().catch(() => {});
-            } catch(e) {
-                console.log('Audio playback error:', e);
-            }
+                const audio = SOUNDS[key] || preloadedAudioMap[`sounds/${key}.mp3`];
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.play().catch(() => {});
+                }
+            } catch(e) {}
         }
 
         function playRandomWinSound() {
             try {
                 const randomSrc = WIN_SOUNDS[Math.floor(Math.random() * WIN_SOUNDS.length)];
-                const baseAudio = preloadedAudioMap[randomSrc] || new Audio(randomSrc);
-                const clone = baseAudio.cloneNode();
-                clone.play().catch(() => {});
-            } catch(e) {
-                console.log('Win audio error:', e);
-            }
+                const audio = preloadedAudioMap[randomSrc] || new Audio(randomSrc);
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+            } catch(e) {}
         }
 
         function playPokemonCry(soundPath) {
             if (!soundPath) return;
             try {
-                const baseAudio = preloadedAudioMap[soundPath] || new Audio(soundPath);
-                const clone = baseAudio.cloneNode();
-                clone.volume = 0.6;
-                clone.play().catch(() => {});
+                const audio = preloadedAudioMap[soundPath];
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.volume = 0.6;
+                    audio.play().catch(() => {});
+                }
             } catch(e) {}
         }
 
@@ -431,10 +432,29 @@
         let submittedGuesses = [];
         let isGameOver = false;
 
+        // --- Virtualization Metrics ---
+        const CELL_WIDTH = 58;  // Cell size + gap
+        const CELL_HEIGHT = 78; // Cell size + gap
+        const BUFFER_SIZE = 3;  // Render buffer offscreen
+
         window.onload = function() {
             initKeyboard();
             switchGameMode('daily');
             startCountdownTimer();
+
+            const viewport = document.getElementById('boardViewport');
+            let isScrolling = false;
+
+            // Throttle virtualization recalculations on grid scroll
+            viewport.addEventListener('scroll', () => {
+                if (!isScrolling) {
+                    window.requestAnimationFrame(() => {
+                        renderVirtualGrid();
+                        isScrolling = false;
+                    });
+                    isScrolling = true;
+                }
+            });
 
             document.addEventListener('keydown', (e) => {
                 if (isGameOver) return;
@@ -560,7 +580,6 @@
             secretSequence = getDailySequence(todayStr);
 
             const savedData = localStorage.getItem(`eeveedle_daily_${todayStr}`);
-            initBoard();
             currentAttempt = 0;
             currentGuess = [];
             submittedGuesses = [];
@@ -570,16 +589,7 @@
                 try {
                     const parsed = JSON.parse(savedData);
                     submittedGuesses = parsed.guesses || [];
-                    
-                    submittedGuesses.forEach((guess, attemptIndex) => {
-                        currentAttempt = attemptIndex;
-                        currentGuess = guess;
-                        updateCurrentRowUI();
-                        evaluateAndRenderRow(guess, currentAttempt, false);
-                    });
-
                     currentAttempt = submittedGuesses.length;
-                    currentGuess = [];
 
                     if (parsed.isGameOver) {
                         isGameOver = true;
@@ -590,6 +600,7 @@
                 }
             }
 
+            initBoard();
             document.getElementById('attemptIndicator').textContent = `Attempt ${Math.min(currentAttempt + 1, currentMaxAttempts)}/${currentMaxAttempts}`;
         }
 
@@ -620,38 +631,104 @@
             localStorage.setItem(`eeveedle_daily_${todayStr}`, JSON.stringify(data));
         }
 
+        // --- Board Virtualization Logic ---
         function initBoard() {
             const container = document.getElementById('gridContainer');
             container.innerHTML = '';
 
             document.getElementById('submitBtnText').textContent = `SUBMIT (${currentSequenceLength})`;
 
-            // Responsive card sizing
-            let cardClasses = 'w-[44px] sm:w-[54px] aspect-[3/4] shrink-0';
+            const totalWidth = currentSequenceLength * CELL_WIDTH;
+            const totalHeight = currentMaxAttempts * CELL_HEIGHT;
 
-            for (let r = 0; r < currentMaxAttempts; r++) {
-                const rowEl = document.createElement('div');
-                rowEl.id = `row-${r}`;
-                rowEl.className = `grid gap-1 sm:gap-1.5 justify-center w-max mx-auto`;
-                rowEl.style.gridTemplateColumns = `repeat(${currentSequenceLength}, max-content)`;
+            container.style.width = `${totalWidth}px`;
+            container.style.height = `${totalHeight}px`;
 
-                for (let c = 0; c < currentSequenceLength; c++) {
-                    const cellEl = document.createElement('div');
-                    cellEl.id = `cell-${r}-${c}`;
-                    cellEl.className = `flip-card ${cardClasses} mx-auto`;
+            renderVirtualGrid();
+        }
 
-                    cellEl.innerHTML = `
-                        <div class="flip-inner w-full h-full relative">
-                            <div class="flip-front tile-container absolute inset-0 rounded-xl border-2 border-gray-800 bg-gray-900/90 flex flex-col items-center justify-between p-0.5 sm:p-1 overflow-hidden">
-                            </div>
-                            <div class="flip-back tile-container absolute inset-0 rounded-xl flex flex-col items-center justify-between shadow-inner p-0.5 sm:p-1 overflow-hidden">
-                            </div>
-                        </div>
-                    `;
-                    rowEl.appendChild(cellEl);
+        function renderVirtualGrid() {
+            const viewport = document.getElementById('boardViewport');
+            if (!viewport) return;
+
+            const scrollTop = viewport.scrollTop;
+            const scrollLeft = viewport.scrollLeft;
+            const viewportWidth = viewport.clientWidth;
+            const viewportHeight = viewport.clientHeight;
+
+            const startRow = Math.max(0, Math.floor(scrollTop / CELL_HEIGHT) - BUFFER_SIZE);
+            const endRow = Math.min(currentMaxAttempts - 1, Math.ceil((scrollTop + viewportHeight) / CELL_HEIGHT) + BUFFER_SIZE);
+
+            const startCol = Math.max(0, Math.floor(scrollLeft / CELL_WIDTH) - BUFFER_SIZE);
+            const endCol = Math.min(currentSequenceLength - 1, Math.ceil((scrollLeft + viewportWidth) / CELL_WIDTH) + BUFFER_SIZE);
+
+            const container = document.getElementById('gridContainer');
+            container.innerHTML = ''; 
+
+            const fragment = document.createDocumentFragment();
+
+            for (let r = startRow; r <= endRow; r++) {
+                for (let c = startCol; c <= endCol; c++) {
+                    fragment.appendChild(createVirtualCell(r, c));
                 }
-                container.appendChild(rowEl);
             }
+            container.appendChild(fragment);
+        }
+
+        function createVirtualCell(r, c) {
+            const cellEl = document.createElement('div');
+            cellEl.id = `cell-${r}-${c}`;
+            cellEl.className = `flip-card w-[54px] aspect-[3/4] absolute`;
+            cellEl.style.left = `${c * CELL_WIDTH}px`;
+            cellEl.style.top = `${r * CELL_HEIGHT}px`;
+
+            const isSubmitted = r < submittedGuesses.length;
+            const isCurrentRow = r === currentAttempt;
+
+            let frontContent = '';
+            let backContent = '';
+            let flippedClass = '';
+            let backBg = 'bg-gray-800 border-gray-700 opacity-80';
+
+            if (isSubmitted) {
+                const guess = submittedGuesses[r];
+                const eevee = EEVEELUTIONS.find(e => e.id === guess[c]);
+                const evalResult = getGuessEvaluation(guess)[c];
+                
+                if (evalResult === 'GREEN') backBg = 'bg-gradient-to-b from-emerald-500 to-emerald-700 border-emerald-300 shadow-lg';
+                if (evalResult === 'YELLOW') backBg = 'bg-gradient-to-b from-amber-500 to-amber-700 border-amber-300 shadow-lg';
+
+                backContent = `
+                    <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
+                        ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
+                        <span class="auto-fit-text font-black text-center w-full shrink-0 drop-shadow">${eevee.name}</span>
+                    </div>
+                `;
+                flippedClass = 'flipped';
+            } else if (isCurrentRow && c < currentGuess.length) {
+                const eevee = EEVEELUTIONS.find(e => e.id === currentGuess[c]);
+                frontContent = `
+                    <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
+                        ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
+                        <span class="auto-fit-text font-black text-center w-full shrink-0" style="color: ${eevee.color}">${eevee.name}</span>
+                    </div>
+                `;
+            }
+
+            const frontBorder = (isCurrentRow && c < currentGuess.length) ? 'border-amber-400 bg-gray-800 tile-pop' : 'border-gray-800 bg-gray-900/90';
+
+            cellEl.innerHTML = `
+                <div class="flip-inner w-full h-full relative ${flippedClass}">
+                    <div class="flip-front tile-container absolute inset-0 rounded-xl border-2 ${frontBorder} flex flex-col items-center justify-between p-0.5 sm:p-1 overflow-hidden">
+                        ${frontContent}
+                    </div>
+                    <div class="flip-back tile-container absolute inset-0 rounded-xl flex flex-col items-center justify-between ${backBg} border-2 p-0.5 sm:p-1 overflow-hidden">
+                        ${backContent}
+                    </div>
+                </div>
+            `;
+
+            return cellEl;
         }
 
         function initKeyboard() {
@@ -696,37 +773,17 @@
         }
 
         function updateCurrentRowUI() {
-            for (let c = 0; c < currentSequenceLength; c++) {
-                const cell = document.getElementById(`cell-${currentAttempt}-${c}`);
-                if (!cell) continue;
-                const front = cell.querySelector('.flip-front');
-
-                if (c < currentGuess.length) {
-                    const eevee = EEVEELUTIONS.find(e => e.id === currentGuess[c]);
-                    front.innerHTML = `
-                        <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
-                            ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
-                            <span class="auto-fit-text font-black text-center w-full shrink-0" style="color: ${eevee.color}">${eevee.name}</span>
-                        </div>
-                    `;
-                    front.classList.remove('border-gray-800');
-                    front.classList.add('border-amber-400', 'bg-gray-800', 'tile-pop');
-                } else {
-                    front.innerHTML = '';
-                    front.className = 'flip-front tile-container absolute inset-0 rounded-xl border-2 border-gray-800 bg-gray-900/90 flex flex-col items-center justify-between p-0.5 sm:p-1 overflow-hidden';
-                }
-            }
+            renderVirtualGrid();
         }
 
         function handleSubmit() {
             if (isGameOver) return;
 
-            const rowEl = document.getElementById(`row-${currentAttempt}`);
-
             if (currentGuess.length < currentSequenceLength) {
                 playSound('failed');
-                rowEl.classList.add('shake');
-                setTimeout(() => rowEl.classList.remove('shake'), 400);
+                const viewport = document.getElementById('boardViewport');
+                viewport.classList.add('shake');
+                setTimeout(() => viewport.classList.remove('shake'), 400);
                 return;
             }
 
@@ -735,7 +792,8 @@
 
             playSound('flip');
 
-            const isWin = evaluateAndRenderRow(guessToSubmit, currentAttempt, true);
+            const isWin = getGuessEvaluation(guessToSubmit).every(res => res === 'GREEN');
+            renderVirtualGrid();
 
             if (isWin || currentAttempt >= currentMaxAttempts - 1) {
                 isGameOver = true;
@@ -744,27 +802,26 @@
                 if (isWin) {
                     setTimeout(() => {
                         playRandomWinSound();
-                    }, currentSequenceLength * 50 + 200);
+                    }, currentSequenceLength * 20 + 150);
                 } else {  
                     setTimeout(() => {
                         playSound('failed');
-                    }, currentSequenceLength * 50 + 200);
+                    }, currentSequenceLength * 20 + 150);
                 }
 
                 setTimeout(() => {
                     showEndModal(isWin);
-                }, currentSequenceLength * 50 + 250);
+                }, currentSequenceLength * 20 + 200);
             } else {
                 currentAttempt++;
                 currentGuess = [];
                 saveDailyState(false);
                 document.getElementById('attemptIndicator').textContent = `Attempt ${currentAttempt + 1}/${currentMaxAttempts}`;
                 
-                // Auto-scroll active row into view
-                const nextRow = document.getElementById(`row-${currentAttempt}`);
-                if (nextRow) {
-                    nextRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
+                // Auto-scroll viewport to active row
+                const viewport = document.getElementById('boardViewport');
+                viewport.scrollTo({ top: currentAttempt * CELL_HEIGHT, behavior: 'smooth' });
+                renderVirtualGrid();
             }
         }
 
@@ -794,40 +851,6 @@
             }
 
             return evaluation;
-        }
-
-        function evaluateAndRenderRow(guess, rowIndex, animated = true) {
-            const evaluation = getGuessEvaluation(guess);
-
-            for (let c = 0; c < currentSequenceLength; c++) {
-                const cell = document.getElementById(`cell-${rowIndex}-${c}`);
-                if (!cell) continue;
-                const back = cell.querySelector('.flip-back');
-                const eevee = EEVEELUTIONS.find(e => e.id === guess[c]);
-
-                back.innerHTML = `
-                    <div class="w-full h-full flex flex-col items-center justify-between p-0.5">
-                        ${getEeveeImageHTML(eevee, "w-full h-[60%] object-contain shrink-0")}
-                        <span class="auto-fit-text font-black text-center w-full shrink-0 drop-shadow">${eevee.name}</span>
-                    </div>
-                `;
-
-                if (evaluation[c] === 'GREEN') {
-                    back.className = 'flip-back tile-container absolute inset-0 rounded-xl flex flex-col items-center justify-between text-white bg-gradient-to-b from-emerald-500 to-emerald-700 border-2 border-emerald-300 shadow-lg p-0.5 sm:p-1 overflow-hidden';
-                } else if (evaluation[c] === 'YELLOW') {
-                    back.className = 'flip-back tile-container absolute inset-0 rounded-xl flex flex-col items-center justify-between text-white bg-gradient-to-b from-amber-500 to-amber-700 border-2 border-amber-300 shadow-lg p-0.5 sm:p-1 overflow-hidden';
-                } else {
-                    back.className = 'flip-back tile-container absolute inset-0 rounded-xl flex flex-col items-center justify-between text-gray-300 bg-gray-800 border-2 border-gray-700 opacity-80 p-0.5 sm:p-1 overflow-hidden';
-                }
-
-                if (animated) {
-                    setTimeout(() => cell.classList.add('flipped'), c * 50);
-                } else {
-                    cell.classList.add('flipped');
-                }
-            }
-
-            return evaluation.every(res => res === 'GREEN');
         }
 
         function generateShareText() {

@@ -56,12 +56,15 @@
 
         .flip-card {
             perspective: 1000px;
+            transform: translateZ(0);
         }
 
         .flip-inner {
             transition: transform 0.35s ease-out;
             transform-style: preserve-3d;
             will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
         .flipped .flip-inner {

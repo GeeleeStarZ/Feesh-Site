@@ -475,26 +475,46 @@
             const availableWidth = viewport.clientWidth - 16;
             const availableHeight = viewport.clientHeight - 16;
             
-            if (activeTab === 'freeplay') {
-                // Fixed minimum card size in custom mode to ensure labels are never truncated
-                CELL_WIDTH = 48;
-                CELL_HEIGHT = Math.round(CELL_WIDTH * ASPECT_RATIO);
-            } else {
-                // Adaptive fit for standard modes maintaining target aspect ratio
-                const calcW = Math.max(38, Math.floor(availableWidth / currentSequenceLength));
-                const calcH = Math.max(52, Math.floor(availableHeight / currentMaxAttempts));
+            // Adaptive fit for all modes maintaining target aspect ratio
+            const calcW = Math.max(38, Math.floor(availableWidth / currentSequenceLength));
+            const calcH = Math.max(52, Math.floor(availableHeight / currentMaxAttempts));
 
-                let targetW = Math.min(54, calcW);
-                let targetH = Math.round(targetW * ASPECT_RATIO);
+            let targetW = Math.min(54, calcW);
+            let targetH = Math.round(targetW * ASPECT_RATIO);
 
-                if (targetH > calcH && calcH >= 52) {
-                    targetH = calcH;
-                    targetW = Math.round(targetH / ASPECT_RATIO);
-                }
-
-                CELL_WIDTH = Math.max(38, targetW);
-                CELL_HEIGHT = Math.max(52, targetH);
+            if (targetH > calcH && calcH >= 52) {
+                targetH = calcH;
+                targetW = Math.round(targetH / ASPECT_RATIO);
             }
+
+            CELL_WIDTH = Math.max(38, targetW);
+            CELL_HEIGHT = Math.max(52, targetH);
+        }
+
+        function logSequenceToConsole() {
+            const formattedSequence = secretSequence.map((id, index) => {
+                const eevee = EEVEELUTIONS.find(e => e.id === id);
+                return {
+                    Position: index + 1,
+                    Eeveelution: eevee ? eevee.name : id,
+                    Type: eevee ? eevee.type : 'Unknown',
+                    Key: eevee ? eevee.key : 'N/A'
+                };
+            });
+
+            const modeName = activeTab === 'daily' 
+                ? `Daily Challenge (${getLocalDateString()})` 
+                : activeTab === 'normal' 
+                    ? `Normal [${normalDifficulty.toUpperCase()}]` 
+                    : `Free Play (${currentSequenceLength} Cols × ${currentMaxAttempts} Rows)`;
+
+            console.group(`%c 🎮 EEVEE-DLE INIT | ${modeName} `, 'background: #a4734f; color: #fff; font-weight: bold; padding: 4px 8px; border-radius: 4px;');
+            console.log(`%cTarget Sequence (${secretSequence.length} items): %c${secretSequence.map(id => {
+                const e = EEVEELUTIONS.find(item => item.id === id);
+                return e ? e.name : id;
+            }).join(' ➔ ')}`, 'font-weight: bold;', 'color: #3498db; font-weight: bold;');
+            console.table(formattedSequence);
+            console.groupEnd();
         }
 
         function bindCustomInputScrolls() {
@@ -777,6 +797,8 @@
             const todayStr = getLocalDateString();
             secretSequence = getDailySequence(todayStr);
 
+            logSequenceToConsole();
+
             const savedData = localStorage.getItem(`eeveedle_daily_${todayStr}`);
             currentAttempt = 0;
             currentGuess = [];
@@ -814,6 +836,8 @@
                 const randIndex = Math.floor(Math.random() * EEVEELUTIONS.length);
                 secretSequence.push(EEVEELUTIONS[randIndex].id);
             }
+
+            logSequenceToConsole();
 
             currentAttempt = 0;
             currentGuess = [];
@@ -1146,20 +1170,38 @@
         async function shareResult() {
             const textToShare = generateShareText();
 
-            if (navigator.share) {
+            const fallbackCopy = (text) => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                textarea.style.top = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+
+                let successful = false;
                 try {
-                    await navigator.share({
-                        title: 'Eevee-dle Result',
-                        text: textToShare
-                    });
+                    successful = document.execCommand('copy');
+                } catch (err) {
+                    successful = false;
+                }
+
+                document.body.removeChild(textarea);
+                return successful;
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(textToShare);
+                    showToast("Result copied to clipboard! 📋");
                     return;
                 } catch (err) {}
             }
 
-            try {
-                await navigator.clipboard.writeText(textToShare);
+            if (fallbackCopy(textToShare)) {
                 showToast("Result copied to clipboard! 📋");
-            } catch (err) {
+            } else {
                 alert("Here is your result:\n\n" + textToShare);
             }
         }

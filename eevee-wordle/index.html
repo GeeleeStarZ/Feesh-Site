@@ -190,8 +190,8 @@
         </div>
     </header>
 
-    <!-- Toast Notification -->
-    <div id="toastNotification" class="fixed top-12 left-1/2 -translate-x-1/2 bg-amber-500 text-gray-950 px-4 py-2 rounded-xl font-bold text-xs shadow-2xl z-50 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-2">
+    <!-- Toast Notification (z-[100] ensures it shows in front of all modals) -->
+    <div id="toastNotification" class="fixed top-12 left-1/2 -translate-x-1/2 bg-amber-500 text-gray-950 px-4 py-2 rounded-xl font-bold text-xs shadow-2xl z-[100] transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-2">
         Copied to clipboard! 📋
     </div>
 
@@ -1190,6 +1190,9 @@
                 document.body.removeChild(textarea);
                 return successful;
             };
+
+            // Restores the end modal if closed
+            openModal('gameEndModal');
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 try {

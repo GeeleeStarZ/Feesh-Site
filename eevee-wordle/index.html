@@ -42,6 +42,27 @@
             background: linear-gradient(135deg, #1a1c29 0%, #0d0e15 100%);
             color: #f3f4f6;
             touch-action: manipulation;
+            transition: background 0.3s ease;
+        }
+
+        /* Spooky Mode Flashlight Overlay - Brightened for readability */
+        body.spooky-mode {
+            background: #090814 !important;
+        }
+
+        #flashlightOverlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            /* Lighter dark mask so elements remain completely readable */
+            background: radial-gradient(circle 220px at var(--light-x, 50%) var(--light-y, 50%), rgba(255, 235, 170, 0.12) 0%, rgba(10, 8, 22, 0.55) 60%, rgba(5, 4, 12, 0.8) 100%);
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        body.spooky-mode #flashlightOverlay {
+            display: block;
         }
 
         .tile-pop {
@@ -154,12 +175,27 @@
 </head>
 <body class="flex flex-col justify-between h-dvh w-full max-w-6xl mx-auto p-1 sm:p-2 select-none overflow-hidden">
 
+    <!-- Flashlight Mask for Spooky Mode -->
+    <div id="flashlightOverlay"></div>
+
     <!-- Header -->
-    <header class="w-full flex items-center justify-between py-1 px-1 border-b border-gray-800 gap-1 shrink-0">
-        <div class="flex items-center">
-            <h1 class="text-base sm:text-2xl font-black tracking-wider eeveelution-gradient-text drop-shadow">
+    <header class="w-full flex items-center justify-between py-1 px-1 border-b border-gray-800 gap-1 shrink-0 relative z-10">
+        <div class="flex items-center gap-2">
+            <h1 id="gameTitle" class="text-base sm:text-2xl font-black tracking-wider eeveelution-gradient-text drop-shadow">
                 EEVEE-DLE
             </h1>
+
+            <!-- Spooky Mode Toggle Switch -->
+            <label class="inline-flex items-center cursor-pointer gap-1.5 bg-gray-900 border border-gray-800 px-2 py-1 rounded-xl hover:border-purple-500/50 transition" title="Toggle Spooky Flashlight Mode">
+                <span class="text-[10px] sm:text-xs font-bold text-purple-400 flex items-center gap-1">
+                    <span>👻</span>
+                    <span class="hidden xs:inline">Spooky</span>
+                </span>
+                <div class="relative">
+                    <input type="checkbox" id="spookyToggle" class="sr-only peer" onchange="handleSpookyToggleChange(this.checked)">
+                    <div class="w-8 h-4 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-purple-600"></div>
+                </div>
+            </label>
         </div>
 
         <!-- Primary Top Tabs -->
@@ -468,6 +504,55 @@
         const BUFFER_SIZE = 3;
         let newlyAddedCellIdx = -1;
 
+        /* --- RE-ENABLEABLE PERSISTENT SPOOKY MODE SYSTEM --- */
+        let isSpookyMode = true;
+
+        function initSpookyMode() {
+            const toggleInput = document.getElementById('spookyToggle');
+            const savedState = localStorage.getItem('eeveedle_spooky_enabled');
+
+            if (savedState !== null) {
+                isSpookyMode = (savedState === 'true');
+            } else {
+                isSpookyMode = true; // Default enabled
+            }
+
+            toggleInput.checked = isSpookyMode;
+            applySpookyMode(isSpookyMode);
+
+            // Flashlight cursor listener
+            const updateFlashlightPosition = (e) => {
+                if (!isSpookyMode) return;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                if (clientX !== undefined && clientY !== undefined) {
+                    document.documentElement.style.setProperty('--light-x', `${clientX}px`);
+                    document.documentElement.style.setProperty('--light-y', `${clientY}px`);
+                }
+            };
+
+            window.addEventListener('mousemove', updateFlashlightPosition, { passive: true });
+            window.addEventListener('touchmove', updateFlashlightPosition, { passive: true });
+            window.addEventListener('touchstart', updateFlashlightPosition, { passive: true });
+        }
+
+        function handleSpookyToggleChange(checked) {
+            isSpookyMode = checked;
+            localStorage.setItem('eeveedle_spooky_enabled', isSpookyMode ? 'true' : 'false');
+            applySpookyMode(isSpookyMode);
+        }
+
+        function applySpookyMode(enabled) {
+            const titleEl = document.getElementById('gameTitle');
+            if (enabled) {
+                document.body.classList.add('spooky-mode');
+                if (titleEl) titleEl.textContent = 'EEVEE-DLE (Spooky edition)';
+            } else {
+                document.body.classList.remove('spooky-mode');
+                if (titleEl) titleEl.textContent = 'EEVEE-DLE';
+            }
+        }
+
         function updateCellDimensions() {
             const viewport = document.getElementById('boardViewport');
             if (!viewport) return;
@@ -541,6 +626,7 @@
         }
 
         window.onload = function() {
+            initSpookyMode();
             initKeyboard();
             bindCustomInputScrolls();
             parseUrlParameters();
